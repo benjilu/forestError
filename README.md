@@ -8,7 +8,7 @@ This package builds on top of the popular `randomForest` package.
 
 ### Installation
 
-The following lines of code in R will install this R package from Github:
+Running the following lines of code in `R` will install this package from Github:
 
 ```{r}
 library(devtools)

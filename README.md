@@ -2,9 +2,9 @@
 Benjamin Lu and Johanna Hardin
 
 ### Overview
-The *forestError* package estimates conditional mean squared prediction errors and conditional prediction intervals for random forests predictions as introduced in Lu and Hardin (2019) (in preparation). Because these estimates are conditional on the test observations' covariate values, each estimate is individualized---i.e., each estimate is specific to each test observation. Consistency of the conditional prediction intervals is proven in Lu and Hardin (2019), and simulation results suggest that these prediction intervals are narrower than those obtained from quantile regression forests and conformal inference while maintaining the desired type-I error rate.
+The `forestError` package estimates conditional mean squared prediction errors and conditional prediction intervals for random forests predictions as introduced in Lu and Hardin (2019) (in preparation). Because these estimates are conditional on the test observations' covariate values, each estimate is individualized---i.e., each estimate is specific to each test observation. Consistency of the conditional prediction intervals is proven in Lu and Hardin (2019), and simulation results suggest that these prediction intervals are narrower than those obtained from quantile regression forests and conformal inference while maintaining the desired type-I error rate.
 
-This package builds on top of the popular *randomForest* package.
+This package builds on top of the popular `randomForest` package.
 
 ### Installation
 
@@ -16,7 +16,7 @@ devtools::install_github(repo="benjilu/RF-Prediction-Errors")
 ```  
 
 ### Instructions
-See documentation.pdf for information on how to use this package. A portion of the example given in the documentation is reproduced below for convenience.
+See `documentation.pdf` for information on how to use this package. A portion of the example given in the documentation is reproduced below for convenience.
 
 ```{r}
 # load data
@@ -44,6 +44,9 @@ rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 10, ntree = 500,
 # intervals for the test observations
 test.preds <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
 ```
+
+### License
+See `DESCRIPTION` for information.
 
 ### References
 * B. Lu and J. Hardin. Individualized prediction errors and intervals for random forests. In preparation, 2019.

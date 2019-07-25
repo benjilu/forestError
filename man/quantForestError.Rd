@@ -18,7 +18,7 @@ and each column should be a predictor variable.}
 be predicted; each row should be an observation, and each column should be
 a predictor variable.}
 
-\item{alpha}{The type I error rate desired for the conditional prediction
+\item{alpha}{The type-I error rate desired for the conditional prediction
 intervals; set to \code{NA} if no prediction intervals are desired.
 Defauls to \code{0.05}.}
 

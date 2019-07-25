@@ -4,7 +4,7 @@
 #' prediction intervals of random forest predictions.
 #'
 #' Three possible sets of outputs are possible from this function depending
-#' on the user's arguments for \code{alpha} and \code{conservative}.
+#' on the user's arguments for \code{alpha} and \code{conservative}.s
 #'
 #' The most minimal output is a list containing the random forest predictions of
 #' the test observations and the estimated conditional mean squared prediction

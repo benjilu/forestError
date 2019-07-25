@@ -8,7 +8,7 @@ Description: Estimates both conditional mean squared prediction errors and
     conditional prediction intervals for random random forest predictions. The
     prediction errors and intervals are conditional in the sense that each error
     and interval is specific to the individual observation whose response is
-    being predicted. More details can be found in Lu and Hardin (2019).
+    being predicted. More details can be found in Lu and Hardin (2019+) (in preparation).
 Imports: randomForest
 License: GPL-3
 Encoding: UTF-8

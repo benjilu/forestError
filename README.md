@@ -49,6 +49,6 @@ test.preds <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
 See `DESCRIPTION` for information.
 
 ### References
-* B. Lu and J. Hardin. Individualized prediction errors and intervals for random forests. In preparation, 2019.
+* B. Lu and J. Hardin. Individualized prediction errors and intervals for random forests. In preparation, 2019+.
 * J. Lei, M. G’Sell, A. Rinaldo, R.J. Tibshirani, and L. Wasserman. Distribution-free predictive inference for regression. Journal of the American Statistical Association, 113: 1094-1111, 2018.
 * N. Meinshausen. Quantile regression forests. Journal of Machine Learning Research, 7:983–999, 2006.

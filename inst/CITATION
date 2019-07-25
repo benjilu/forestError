@@ -4,7 +4,7 @@ citEntry(entry = "Article",
   title = "Individualized Prediction Errors and Intervals for Random Forests",
   author = personList(as.person("Benjamin Lu"),
                       as.person("Johanna Hardin")),
-  journal = "In Preparation",
+  journal = "In preparation",
   year = "2019+",
 
   textVersion = paste("Benjamin Lu, Johanna Hardin (2019+).",

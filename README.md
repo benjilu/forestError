@@ -12,7 +12,7 @@ Running the following lines of code in `R` will install this package from Github
 
 ```{r}
 library(devtools)
-devtools::install_github(repo="benjilu/RF-Prediction-Errors")
+devtools::install_github(repo="benjilu/forestError")
 ```  
 
 ### Instructions

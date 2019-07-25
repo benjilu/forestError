@@ -1,5 +1,4 @@
-## forestError: Individualized Prediction Errors and Prediction Intervals for Random Forests
-Benjamin Lu and Johanna Hardin
+# forestError: Individualized Prediction Errors and Prediction Intervals for Random Forests
 
 ### Overview
 The `forestError` package estimates conditional mean squared prediction errors and conditional prediction intervals for random forests predictions as introduced in Lu and Hardin (2019) (in preparation). Because these estimates are conditional on the test observations' covariate values, each estimate is individualized; in other words, each squared error and interval estimate is specific to each test observation. Simulation results suggest that these prediction intervals are narrower than those obtained from quantile regression forests and conformal inference and substantially less computationally expensive than prediction intervals obtained via conformal inference.
@@ -12,7 +11,7 @@ Running the following lines of code in `R` will install this package from Github
 
 ```{r}
 library(devtools)
-devtools::install_github(repo="benjilu/forestError")
+devtools::install_github(repo = "benjilu/forestError")
 ```  
 
 ### Instructions
@@ -47,6 +46,9 @@ test.preds <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
 
 ### License
 See `DESCRIPTION` for information.
+
+### Authors
+Benjamin Lu and Johanna Hardin
 
 ### References
 * B. Lu and J. Hardin. Individualized prediction errors and intervals for random forests. In preparation, 2019+.

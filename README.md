@@ -1,9 +1,9 @@
 # forestError: Individualized Prediction Errors and Prediction Intervals for Random Forests
 
 ### Overview
-The `forestError` package estimates conditional mean squared prediction errors and conditional prediction intervals for random forests, as introduced in Lu and Hardin (2019+) (in preparation). Because these estimates are conditional on the test observations' predictor values, each estimate is individualized; in other words, each squared error and interval estimate is specific to each test observation, accounting for possible response heterogeneity across the predictor space. Simulation results suggest that these prediction intervals are narrower than those obtained from quantile regression forests and conformal inference and orders of magnitude faster to compute than prediction intervals obtained via conformal inference.
+The `forestError` package estimates conditional mean squared prediction errors and conditional prediction intervals for random forests, as introduced in Lu and Hardin (2019+) (in preparation). Because these estimates are conditional on the test observations' predictor values, each estimate is individualized; in other words, each squared error and interval estimate is specific to each test observation, accounting for possible response heterogeneity across the predictor space. Simulation results suggest that these prediction intervals are narrower than those obtained from quantile regression forests and conformal inference and several orders of magnitude faster to compute than prediction intervals obtained via conformal inference.
 
-In its current state, the main function in this package accepts random forests built via the `randomForest` package. However, the general framework of conditional prediction error estimation developed in Lu and Hardin (2019+) and implemented in this package is compatible with many variants of traditional random forests that use different subsampling regimes and tree-construction procedures; integrating such variants into this package is a work in progress.
+In its current state, the main function in this package accepts random forests built via the `randomForest` package.<!---However, the general framework of conditional prediction error estimation developed in Lu and Hardin (2019+) and implemented in this package is compatible with many variants of traditional random forests that use different subsampling regimes and tree-construction procedures; integrating such variants into this package is a work in progress.--->
 
 ### Installation
 
@@ -36,8 +36,8 @@ Xtest <- airquality[-train.ind, -response.col]
 Ytest <- airquality[-train.ind, response.col]
 
 # fit random forest to the training data
-rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 10, ntree = 500,
-                                 keep.inbag = TRUE)
+rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 10,
+                                 ntree = 500, keep.inbag = TRUE)
 
 # get conditional mean squared prediction errors and prediction
 # intervals for the test observations
@@ -52,5 +52,5 @@ Benjamin Lu and Johanna Hardin
 
 ### References
 * B. Lu and J. Hardin. Individualized prediction errors and intervals for random forests. In preparation, 2019+.
-* J. Lei, M. G’Sell, A. Rinaldo, R.J. Tibshirani, and L. Wasserman. Distribution-free predictive inference for regression. Journal of the American Statistical Association, 113: 1094-1111, 2018.
+* J. Lei, M. G’Sell, A. Rinaldo, R.J. Tibshirani, and L. Wasserman. Distribution-free predictive inference for regression. Journal of the American Statistical Association, 113:1094-1111, 2018.
 * N. Meinshausen. Quantile regression forests. Journal of Machine Learning Research, 7:983–999, 2006.

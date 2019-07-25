@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "Package: forestError\nType: Package\nTitle: Individualized Prediction Errors and Intervals for Random Forests\nVersion: 0.0.0.9000\nAuthor: Benjamin Lu and Johanna Hardin\nMaintainer: Benjamin Lu <b.lu@berkeley.edu>\nDescription: Estimates both conditional mean squared prediction errors and \n    conditional prediction intervals for random random forest predictions. The\n    prediction errors and intervals are conditional in the sense that each error\n    and interval is specific to the individual observation whose response is\n    being predicted. More details can be found in Lu and Hardin (2019).\nImports: randomForest\nLicense: GPL-3\nEncoding: UTF-8\nLazyData: true\nRoxygenNote: 6.1.1\n",
+    "created" : 1564018895853.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "124977756",
+    "id" : "E254342E",
+    "lastKnownWriteTime" : 1564018992,
+    "last_content_update" : 1564018992247,
+    "path" : "~/Desktop/forestErrorPackage/RF-Prediction-Errors/DESCRIPTION",
+    "project_path" : "DESCRIPTION",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "dcf"
+}

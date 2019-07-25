@@ -2,8 +2,8 @@ Package: forestError
 Type: Package
 Title: Individualized Prediction Errors and Intervals for Random Forests
 Version: 0.0.0.9000
-Authors@R: person("Benjamin", "Lu", email = "b.lu@berkeley.edu",
-    role = c("aut", "cre"))
+Author: Benjamin Lu and Johanna Hardin
+Maintainer: Benjamin Lu <b.lu@berkeley.edu>
 Description: Estimates both conditional mean squared prediction errors and 
     conditional prediction intervals for random random forest predictions. The
     prediction errors and intervals are conditional in the sense that each error

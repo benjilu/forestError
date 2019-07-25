@@ -1,4 +1,4 @@
-## forestError: Individualized Prediction Errors and Intervals for Random Forests
+## forestError: Individualized Prediction Errors and Prediction Intervals for Random Forests
 Benjamin Lu and Johanna Hardin
 
 ### Overview

@@ -3,6 +3,8 @@
 #' Estimates the conditional mean squared prediction errors and conditional
 #' prediction intervals of random forest predictions.
 #'
+#' When training the random forest, \code{keep.inbag} must be set to \code{TRUE}.
+#'
 #' Three possible sets of outputs are possible from this function depending
 #' on the user's arguments for \code{alpha} and \code{conservative}.
 #'

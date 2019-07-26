@@ -38,6 +38,9 @@
 #'   conditional prediction intervals should be estimated in which ties in the
 #'   empirical error distribution should be resolved conservatively or not.
 #'   Defaults to \code{TRUE}.
+#' @param rcpp A \code{logical} indicating whether the weights should be
+#'   computed using \code{Rcpp}. Recommended if the number of training
+#'   observations, test observations, or trees is large. Defauls to \code{FALSE}.
 #'
 #' @return A list with the following possible elements, each in the form of a
 #'   vector, as described in the details section:
@@ -90,7 +93,7 @@
 #' test.preds <- quantForestError(rf, Xtrain, Xtest, alpha = NA)
 #'
 #' @export
-quantForestError <- function(forest, X.train, X.test, alpha = 0.05, conservative = TRUE) {
+quantForestError <- function(forest, X.train, X.test, alpha = 0.05, conservative = TRUE, rcpp = FALSE) {
 
   # check forest, X.train, and X.test arguments for issues
   checkForest(forest)
@@ -117,14 +120,30 @@ quantForestError <- function(forest, X.train, X.test, alpha = 0.05, conservative
   # (for all other trees, set the terminal node to be 0)
   train.oob.terminal.nodes <- train.terminal.nodes * as.numeric(bag.count == 0)
 
-  # initialize dataframe
-  oob.weights <- data.frame(matrix(rep(NA, n.test * n.train), nrow = n.test))
+  # if the user wishes to compute cohabitants in R
+  if (rcpp == FALSE) {
 
-  # for each test observation
-  for (test.obs in 1:n.test) {
+    # initialize dataframe
+    oob.weights <- data.frame(matrix(rep(NA, n.test * n.train), nrow = n.test))
 
-    # get for each training observation the number of times it is an OOB cohabitant of the test observation and record it in the dataframe
-    oob.weights[test.obs, ] <- rowSums(sweep(train.oob.terminal.nodes, MARGIN = 2, test.terminal.nodes[test.obs, ], "=="))
+    # for each test observation
+    for (test.obs in 1:n.test) {
+
+      # get for each training observation the number of times it is an OOB cohabitant of the test observation and record it in the dataframe
+      oob.weights[test.obs, ] <- rowSums(sweep(train.oob.terminal.nodes, MARGIN = 2, test.terminal.nodes[test.obs, ], "=="))
+    }
+
+  # else, if the user wishes to compute cohabitants in C++
+  } else {
+
+    # load Rcpp
+    library(Rcpp)
+
+    # source the C++ function
+    sourceCpp("./src/cohabitantCount.cpp")
+
+    # run C++ function
+    oob.weights <- countOOBCohabitants(train.oob.terminal.nodes, test.terminal.nodes, n.train, n.test)
   }
 
   # for each test observation, convert the number of times each training observation

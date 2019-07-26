@@ -5,7 +5,7 @@
 \title{Quantify random forest prediction error}
 \usage{
 quantForestError(forest, X.train, X.test, alpha = 0.05,
-  conservative = TRUE)
+  conservative = TRUE, rcpp = FALSE)
 }
 \arguments{
 \item{forest}{The random forest object being used for prediction.}
@@ -26,6 +26,10 @@ Defauls to \code{0.05}.}
 conditional prediction intervals should be estimated in which ties in the
 empirical error distribution should be resolved conservatively or not.
 Defaults to \code{TRUE}.}
+
+\item{rcpp}{A \code{logical} indicating whether the weights should be
+computed using \code{Rcpp}. Recommended if the number of training
+observations, test observations, or trees is large. Defauls to \code{FALSE}.}
 }
 \value{
 A list with the following possible elements, each in the form of a

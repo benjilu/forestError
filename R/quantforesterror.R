@@ -92,6 +92,8 @@
 #' # get just the mean squared prediction error estimates
 #' test.preds <- quantForestError(rf, Xtrain, Xtest, alpha = NA)
 #'
+#' @useDynLib forestError
+#' @importFrom Rcpp sourceCpp
 #' @export
 quantForestError <- function(forest, X.train, X.test, alpha = 0.05, conservative = TRUE, rcpp = FALSE) {
 
@@ -135,12 +137,6 @@ quantForestError <- function(forest, X.train, X.test, alpha = 0.05, conservative
 
   # else, if the user wishes to compute cohabitants in C++
   } else {
-
-    # load Rcpp
-    library(Rcpp)
-
-    # source the C++ function
-    sourceCpp("./src/cohabitantCount.cpp")
 
     # run C++ function
     oob.weights <- countOOBCohabitants(train.oob.terminal.nodes, test.terminal.nodes, n.train, n.test)

@@ -115,7 +115,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, alpha = 0.
   n.test <- nrow(X.test)
 
   # if the forest is from the randomForest package
-  if (class(forest)[1] == "randomForest") {
+  if ("randomForest" %in% class(forest)) {
 
     # get test predictions
     test.pred.list <- predict(forest, X.test, nodes = TRUE)
@@ -135,7 +135,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, alpha = 0.
     test.preds <- test.pred.list
 
   # else, if the forest is from the ranger package
-  } else if (class(forest)[1] == "ranger") {
+  } else if ("ranger" %in% class(forest)) {
 
     # get terminal nodes of all observations
     train.terminal.nodes <- predict(forest, X.train, type = "terminalNodes")$predictions

@@ -3,11 +3,11 @@
 ### Overview
 The `forestError` package estimates conditional mean squared prediction errors and conditional prediction intervals for random forests, as introduced in Lu and Hardin (2019+) (in preparation). Because these estimates are conditional on the test observations' predictor values, each estimate is individualized; in other words, each squared error and interval estimate is specific to each test observation, accounting for possible response heterogeneity across the predictor space. Simulation results suggest that these prediction intervals are narrower than those obtained from quantile regression forests and conformal inference and several orders of magnitude faster to compute than prediction intervals obtained via conformal inference.
 
-In its current state, the main function in this package accepts regression random forests built using any of the following packages.
+In its current state, the main function in this package accepts regression random forests built using any of the following packages:
 
-- `randomForest`
-- `randomForestSRC`
-- `ranger`
+- `randomForest`,
+- `randomForestSRC`, and
+- `ranger`.
 
 ### Installation
 

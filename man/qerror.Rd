@@ -33,6 +33,9 @@ qerror(c(0.25, 0.8))
 qerror(c(0.25, 0.8), 1:3)
 }
 }
+\seealso{
+\code{\link{quantForestError}}
+}
 \author{
 Benjamin Lu \code{<b.lu@berkeley.edu>}; Johanna Hardin \code{<jo.hardin@pomona.edu>}
 }

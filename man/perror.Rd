@@ -34,6 +34,9 @@ perror(c(-5, 5))
 perror(c(-5, 5), 1:3)
 }
 }
+\seealso{
+\code{\link{quantForestError}}
+}
 \author{
 Benjamin Lu \code{<b.lu@berkeley.edu>}; Johanna Hardin \code{<jo.hardin@pomona.edu>}
 }

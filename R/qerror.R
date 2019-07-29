@@ -13,6 +13,8 @@
 #'   one, then a \code{data.frame} is returned, with rows corresponding to the
 #'   inputted \code{xs} and columns corresponding to the inputted \code{q}.
 #'
+#' @seealso \code{\link{quantForestError}}
+#'
 #' @author Benjamin Lu \code{<b.lu@berkeley.edu>}; Johanna Hardin \code{<jo.hardin@pomona.edu>}
 #' @examples
 #' \donttest{

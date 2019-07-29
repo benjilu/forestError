@@ -2,4 +2,5 @@
 
 export(quantForestError)
 importFrom(Rcpp,sourceCpp)
+importFrom(stats,predict)
 useDynLib(forestError)

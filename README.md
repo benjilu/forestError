@@ -6,8 +6,9 @@ The `forestError` package estimates conditional mean squared prediction errors a
 In its current state, the main function in this package accepts regression random forests built using any of the following packages:
 
 - `randomForest`,
-- `randomForestSRC`, and
-- `ranger`.
+- `randomForestSRC`,
+- `ranger`, and
+- `quantregForest`.
 
 ### Installation
 

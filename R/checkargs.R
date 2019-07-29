@@ -1,7 +1,7 @@
 checkForest <- function(forest) {
   if (typeof(forest) != "list") {
     stop("'forest' is not of the correct type")
-  } else if (!any(c("randomForest", "ranger", "rfsrc") %in% class(forest))) {
+  } else if (!any(c("randomForest", "ranger", "rfsrc", "quantregForest") %in% class(forest))) {
     stop("'forest' is not of the correct class")
   } else if (is.null(forest$inbag)) {
     stop("'forest' does not have record of which training observations are in bag for each tree. Re-fit the random forest with argument keep.inbag = TRUE")
@@ -37,5 +37,13 @@ checkAlpha <- function(alpha) {
 checkConservative <- function(conservative) {
   if (typeof(conservative) != "logical" | is.na(conservative)) {
     stop("'conservative' must be TRUE or FALSE")
+  }
+}
+
+checkxs <- function(xs, n.test) {
+  if (max(xs) > n.test | min(xs) < 1) {
+    stop("Test indices are out of bounds")
+  } else if (any(xs %% 1 != 0)) {
+    stop("Test indices must be whole numbers")
   }
 }

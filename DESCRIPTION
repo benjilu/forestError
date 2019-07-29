@@ -11,7 +11,6 @@ Description: Estimates both conditional mean squared prediction errors and
     being predicted. More details can be found in Lu and Hardin (2019+)
     (in preparation).
 Imports: 
-    randomForest,
     Rcpp
 License: GPL-3
 Encoding: UTF-8

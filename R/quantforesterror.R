@@ -127,6 +127,8 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #'                                 what = c("p.error", "q.error"))
 #'}
 #'
+#' @aliases forestError
+#'
 #' @useDynLib forestError
 #' @importFrom Rcpp sourceCpp
 #' @importFrom stats predict

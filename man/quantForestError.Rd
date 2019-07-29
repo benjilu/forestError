@@ -2,6 +2,7 @@
 % Please edit documentation in R/quantforesterror.R
 \name{quantForestError}
 \alias{quantForestError}
+\alias{forestError}
 \title{Quantify random forest prediction error}
 \usage{
 quantForestError(forest, X.train, X.test, Y.train = NULL,

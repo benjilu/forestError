@@ -15,9 +15,10 @@ given in the call of \code{quantForestError}.}
 }
 \value{
 If either \code{q} or \code{xs} has length one, then a vector is
-  returned with the desired probabilities. If both have length greater than
-  one, then a \code{data.frame} is returned, with rows corresponding to the
-  inputted \code{xs} and columns corresponding to the inputted \code{q}.
+  returned with the desired quantiles. If both have length greater than
+  one, then a \code{data.frame} of quantiles is returned, with rows
+  corresponding to the inputted \code{xs} and columns corresponding to the
+  inputted \code{q}.
 }
 \description{
 Returns quantiles from the estimated quantile function of the conditional

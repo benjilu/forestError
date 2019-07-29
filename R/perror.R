@@ -12,8 +12,9 @@
 #'
 #' @return If either \code{p} or \code{xs} has length one, then a vector is
 #'   returned with the desired probabilities. If both have length greater than
-#'   one, then a \code{data.frame} is returned, with rows corresponding to the
-#'   inputted \code{xs} and columns corresponding to the inputted \code{p}.
+#'   one, then a \code{data.frame} of probabilities is returned, with rows
+#'   corresponding to the inputted \code{xs} and columns corresponding to the
+#'   inputted \code{p}.
 #'
 #' @seealso \code{\link{quantForestError}}
 #'

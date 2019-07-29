@@ -41,8 +41,8 @@ Xtest <- airquality[-train.ind, -response.col]
 Ytest <- airquality[-train.ind, response.col]
 
 # fit random forest to the training data
-rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 10,
-                                 ntree = 500, keep.inbag = TRUE)
+rf <- randomForest(Xtrain, Ytrain, nodesize = 5,
+                   ntree = 500, keep.inbag = TRUE)
 
 # get conditional mean squared prediction errors and prediction
 # intervals for the test observations

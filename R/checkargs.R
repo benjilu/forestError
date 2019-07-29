@@ -18,6 +18,14 @@ checkXtrainXtest <- function(X.train, X.test) {
   }
 }
 
+checkYtrain <- function(Y.train, n.train) {
+  if (is.null(Y.train)) {
+    stop("You must supply the training responses (Y.train)")
+  } else if (length(Y.train) != n.train) {
+    stop("Number of training responses does not match number of training observations")
+  }
+}
+
 checkAlpha <- function(alpha) {
   if (typeof(alpha) != "double") {
     stop("'alpha' must be of type double")

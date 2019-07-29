@@ -7,11 +7,11 @@
 perror(p, xs)
 }
 \arguments{
-\item{p}{Vector of quantiles}
+\item{p}{A vector of quantiles.}
 
-\item{xs}{Indices of the test observations for which the conditional error
-CDFs are desired. Defaults to all test observations given in the call of
-\code{quantForestError}.}
+\item{xs}{A vector of the indices of the test observations for which the
+conditional error CDFs are desired. Defaults to all test observations
+given in the call of \code{quantForestError}.}
 }
 \value{
 If either \code{p} or \code{xs} has length one, then a vector is

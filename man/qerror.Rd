@@ -7,11 +7,11 @@
 qerror(q, xs)
 }
 \arguments{
-\item{q}{Vector of probabilities}
+\item{q}{A vector of probabilities.}
 
-\item{xs}{Indices of the test observations for which the conditional error
-CDFs are desired. Defaults to all test observations given in the call of
-\code{quantForestError}.}
+\item{xs}{A vector of the indices of the test observations for which the
+conditional error quantiles are desired. Defaults to all test observations
+given in the call of \code{quantForestError}.}
 }
 \value{
 If either \code{q} or \code{xs} has length one, then a vector is

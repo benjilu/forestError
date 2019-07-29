@@ -5,10 +5,10 @@
 #'
 #' @usage qerror(q, xs)
 #'
-#' @param q Vector of probabilities
-#' @param xs Indices of the test observations for which the conditional error
-#'   CDFs are desired. Defaults to all test observations given in the call of
-#'   \code{quantForestError}.
+#' @param q A vector of probabilities.
+#' @param xs A vector of the indices of the test observations for which the
+#'   conditional error quantiles are desired. Defaults to all test observations
+#'   given in the call of \code{quantForestError}.
 #'
 #' @return If either \code{q} or \code{xs} has length one, then a vector is
 #'   returned with the desired probabilities. If both have length greater than

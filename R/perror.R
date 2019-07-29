@@ -3,6 +3,8 @@
 #' Returns probabilities from the estimated cumulative distribution function
 #' of the conditional error distribution associated with each test prediction.
 #'
+#' @usage perror(p, xs)
+#'
 #' @param p Vector of quantiles
 #' @param xs Indices of the test observations for which the conditional error
 #'   CDFs are desired. Defaults to all test observations given in the call of

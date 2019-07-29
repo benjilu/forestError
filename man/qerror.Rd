@@ -4,7 +4,7 @@
 \alias{qerror}
 \title{Empirical quantile functions of conditional errors}
 \usage{
-qerror(q, xs = 1:n.test)
+qerror(q, xs)
 }
 \arguments{
 \item{q}{Vector of probabilities}

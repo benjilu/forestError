@@ -3,6 +3,8 @@
 #' Returns quantiles from the estimated quantile function of the conditional
 #' error distribution associated with each test prediction.
 #'
+#' @usage qerror(q, xs)
+#'
 #' @param q Vector of probabilities
 #' @param xs Indices of the test observations for which the conditional error
 #'   CDFs are desired. Defaults to all test observations given in the call of

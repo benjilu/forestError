@@ -122,18 +122,19 @@ rf <- randomForest(Xtrain, Ytrain, nodesize = 10,
 # get conditional mean squared prediction errors, prediction
 # intervals, and empirical error distribution functions for
 # the test observations
-test.preds <- quantForestError(rf, Xtrain, Xtest)
+test.errors <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
 
 # get just the conditional mean squared prediction errors
 # and prediction intervals for the test observations
-test.preds <- quantForestError(rf, Xtrain, Xtest,
-                               what = c("mspe", "interval",
-                                        "cons.interval"))
+test.errors <- quantForestError(rf, Xtrain, Xtest,
+                                what = c("mspe", "interval",
+                                         "cons.interval"),
+                                alpha = 0.05)
 
 # get just the conditional empirical error distribution
 # functions for the test observations
-test.preds <- quantForestError(rf, Xtrain, Xtest,
-                               what = c("p.error", "q.error"))
+test.errors <- quantForestError(rf, Xtrain, Xtest,
+                                what = c("p.error", "q.error"))
 }
 
 }

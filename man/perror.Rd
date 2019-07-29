@@ -4,7 +4,7 @@
 \alias{perror}
 \title{Empirical cumulative distribution functions of conditional errors}
 \usage{
-perror(p, xs = 1:n.test)
+perror(p, xs)
 }
 \arguments{
 \item{p}{Vector of quantiles}

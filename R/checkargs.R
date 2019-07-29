@@ -1,7 +1,7 @@
 checkForest <- function(forest) {
   if (typeof(forest) != "list") {
     stop("'forest' is not of the correct type")
-  } else if (class(forest) != "randomForest") {
+  } else if (class(forest)[1] != "randomForest" & class(forest)[1] != "ranger" & !("rfsrc" %in% class(forest))) {
     stop("'forest' is not of the correct class")
   } else if (is.null(forest$inbag)) {
     stop("'forest' does not have record of which training observations are in bag for each tree. Re-fit the random forest with argument keep.inbag = TRUE")

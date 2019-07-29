@@ -4,7 +4,7 @@
 \alias{quantForestError}
 \title{Quantify random forest prediction error}
 \usage{
-quantForestError(forest, X.train, X.test, alpha = 0.05,
+quantForestError(forest, X.train, X.test, Y.train = NULL, alpha = 0.05,
   conservative = TRUE, rcpp = TRUE)
 }
 \arguments{
@@ -18,6 +18,11 @@ and each column should be a predictor variable.}
 be predicted; each row should be an observation, and each column should be
 a predictor variable.}
 
+\item{Y.train}{A vector of the responses of the observations that were used
+to train \code{forest}. Required if \code{forest} was created using
+the \code{ranger} package, but not if \code{forest} was created using the
+\code{randomForest} package or the \code{randomForestSRC} package.}
+
 \item{alpha}{The type-I error rate desired for the conditional prediction
 intervals; set to \code{NA} if no prediction intervals are desired.
 Defauls to \code{0.05}.}
@@ -28,9 +33,9 @@ empirical error distribution should be resolved conservatively or not.
 Defaults to \code{TRUE}.}
 
 \item{rcpp}{A \code{logical} indicating whether the weights should be
-computed using \code{Rcpp} for reduced runtime. Recommended as long as
-\code{Rcpp} is installed, and especially when the number of training
-observations, test observations, or trees is large. Defaults to \code{TRUE}.}
+computed in \code{C++} using the \code{Rcpp} package for reduced runtime.
+Recommended especially when the number of training observations, test
+observations, or trees is large. Defaults to \code{TRUE}.}
 }
 \value{
 A list with the following possible elements, each in the form of a
@@ -53,7 +58,9 @@ Estimates the conditional mean squared prediction errors and conditional
 prediction intervals of random forest predictions.
 }
 \details{
-When training the random forest, \code{keep.inbag} must be set to \code{TRUE}.
+When training the random forest using \code{randomForest} or \code{ranger},
+\code{keep.inbag} must be set to \code{TRUE}. When training the random
+forset using \code{randomForestSRC}, \code{membership} must be set to \code{TRUE}.
 
 Three possible sets of outputs are possible from this function depending
 on the user's arguments for \code{alpha} and \code{conservative}.

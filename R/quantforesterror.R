@@ -3,7 +3,9 @@
 #' Estimates the conditional mean squared prediction errors and conditional
 #' prediction intervals of random forest predictions.
 #'
-#' When training the random forest, \code{keep.inbag} must be set to \code{TRUE}.
+#' When training the random forest using \code{randomForest} or \code{ranger},
+#' \code{keep.inbag} must be set to \code{TRUE}. When training the random
+#' forset using \code{randomForestSRC}, \code{membership} must be set to \code{TRUE}.
 #'
 #' Three possible sets of outputs are possible from this function depending
 #' on the user's arguments for \code{alpha} and \code{conservative}.
@@ -33,6 +35,10 @@
 #' @param X.test A \code{matrix} or \code{data.frame} with the observations to
 #'   be predicted; each row should be an observation, and each column should be
 #'   a predictor variable.
+#' @param Y.train A vector of the responses of the observations that were used
+#'   to train \code{forest}. Required if \code{forest} was created using
+#'   the \code{ranger} package, but not if \code{forest} was created using the
+#'   \code{randomForest} package or the \code{randomForestSRC} package.
 #' @param alpha The type-I error rate desired for the conditional prediction
 #'   intervals; set to \code{NA} if no prediction intervals are desired.
 #'   Defauls to \code{0.05}.
@@ -41,9 +47,9 @@
 #'   empirical error distribution should be resolved conservatively or not.
 #'   Defaults to \code{TRUE}.
 #' @param rcpp A \code{logical} indicating whether the weights should be
-#'   computed using \code{Rcpp} for reduced runtime. Recommended as long as
-#'   \code{Rcpp} is installed, and especially when the number of training
-#'   observations, test observations, or trees is large. Defaults to \code{TRUE}.
+#'   computed in \code{C++} using the \code{Rcpp} package for reduced runtime.
+#'   Recommended especially when the number of training observations, test
+#'   observations, or trees is large. Defaults to \code{TRUE}.
 #'
 #' @return A list with the following possible elements, each in the form of a
 #'   vector, as described in the details section:
@@ -98,35 +104,78 @@
 #' @useDynLib forestError
 #' @importFrom Rcpp sourceCpp
 #' @export
-quantForestError <- function(forest, X.train, X.test, alpha = 0.05, conservative = TRUE, rcpp = TRUE) {
+quantForestError <- function(forest, X.train, X.test, Y.train = NULL, alpha = 0.05, conservative = TRUE, rcpp = TRUE) {
 
   # check forest, X.train, and X.test arguments for issues
   checkForest(forest)
   checkXtrainXtest(X.train, X.test)
 
-  # get terminal nodes of all observations
-  train.terminal.nodes <- attr(predict(forest, X.train, nodes = TRUE), "nodes")
-  test.terminal.nodes <- attr(predict(forest, X.test, nodes = TRUE), "nodes")
-
-  # get number of times each training observation appears in each tree
-  bag.count <- forest$inbag
-
-  # get the OOB prediction error of each training observation
-  oob.errors <- forest$y - forest$predicted
-
   # get number of training and test observations
   n.train <- nrow(X.train)
   n.test <- nrow(X.test)
 
-  # get test observation predictions
-  test.preds <- predict(forest, X.test)
+  # if the forest is from the randomForest package
+  if (class(forest)[1] == "randomForest") {
+
+    # get test predictions
+    test.pred.list <- predict(forest, X.test, nodes = TRUE)
+
+    # get terminal nodes of all observations
+    train.terminal.nodes <- attr(predict(forest, X.train, nodes = TRUE), "nodes")
+    test.terminal.nodes <- attr(test.pred.list, "nodes")
+
+    # get number of times each training observation appears in each tree
+    bag.count <- forest$inbag
+
+    # get the OOB prediction error of each training observation
+    oob.errors <- forest$y - forest$predicted
+
+    # get test observation predictions
+    attributes(test.pred.list) <- NULL
+    test.preds <- test.pred.list
+
+  # else, if the forest is from the ranger package
+  } else if (class(forest)[1] == "ranger") {
+
+    # get terminal nodes of all observations
+    train.terminal.nodes <- predict(forest, X.train, type = "terminalNodes")$predictions
+    test.terminal.nodes <- predict(forest, X.test, type = "terminalNodes")$predictions
+
+    # get number of times each training observation appears in each tree
+    bag.count <- matrix(unlist(forest$inbag.counts, use.names = FALSE), ncol = forest$num.trees, byrow = FALSE)
+
+    # get the OOB prediction error of each training observation
+    oob.errors <- Y.train - forest$predictions
+
+    # get test observation predictions
+    test.preds <- predict(forest, X.test)$predictions
+
+  # else, if the forset is from the randomForestSRC package
+  } else if ("rfsrc" %in% class(forest)) {
+
+    # get test predictions
+    test.pred.list <- predict(forest, X.test, membership = TRUE)
+
+    # get terminal nodes of all observations
+    train.terminal.nodes <- forest$membership
+    test.terminal.nodes <- test.pred.list$membership
+
+    # get number of times each training observation appears in each tree
+    bag.count <- forest$inbag
+
+    # get the OOB prediction error of each training observation
+    oob.errors <- forest$yvar - forest$predicted.oob
+
+    # get test observation predictions
+    test.preds <- test.pred.list$predicted
+  }
 
   # get the terminal nodes of the training observations in the trees in which they are OOB
   # (for all other trees, set the terminal node to be 0)
   train.oob.terminal.nodes <- train.terminal.nodes * as.numeric(bag.count == 0)
 
   # if the user wishes to compute cohabitants in R
-  if (rcpp == FALSE) {
+  if (!rcpp) {
 
     # initialize dataframe
     oob.weights <- data.frame(matrix(rep(NA, n.test * n.train), nrow = n.test))
@@ -169,7 +218,7 @@ quantForestError <- function(forest, X.train, X.test, alpha = 0.05, conservative
 
     # get the index of the training observation for which the cumulative sum of the OOB weights
     # initially exceeds 0.025
-    lower.ind <- apply(ordered.oob.weights, 1, FUN = function(x) max(min(which(cumsum(x) >= alpha / 2)), 1))
+    lower.ind <- apply(ordered.oob.weights, 1, FUN = function(x) max(suppressWarnings(min(which(cumsum(x) >= alpha / 2))), 1))
     # get the index of the training observation for which the cumulative sum of the OOB weights
     # last remains below 0.975
     upper.ind <- apply(ordered.oob.weights, 1, FUN = function(x) max(which(cumsum(x) <= 1 - (alpha / 2))))
@@ -184,7 +233,7 @@ quantForestError <- function(forest, X.train, X.test, alpha = 0.05, conservative
 
       # get the index of the training observation for which the cumulative sum of the OOB weights
       # initially exceeds 0.025 (CONSERVATIVE)
-      con.lower.ind <- apply(ordered.oob.weights, 1, FUN = function(x) max(max(which(cumsum(x) <= alpha / 2)), 1))
+      con.lower.ind <- apply(ordered.oob.weights, 1, FUN = function(x) max(suppressWarnings(max(which(cumsum(x) <= alpha / 2))), 1))
       # get the index of the training observation for which the cumulative sum of the OOB weights
       # last remains below 0.975 (CONSERVATIVE)
       con.upper.ind <- apply(ordered.oob.weights, 1, FUN = function(x) min(which(cumsum(x) >= 1 - (alpha / 2))))

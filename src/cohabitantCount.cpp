@@ -6,6 +6,19 @@ IntegerMatrix countOOBCohabitants(IntegerMatrix trainNodes,
                                   IntegerMatrix testNodes,
                                   double nTrain,
                                   double nTest) {
+  /* for each train-test pair, counts the frequency of cohabitation
+   *
+   * Args:
+   *   trainNodes: matrix indicating for each tree the terminal node in which
+   *               the training observation is located
+   *   testNodes: matrix indicating for each tree the terminal node in which
+   *               the test observation is located
+   *   nTrain: number of training observations
+   *   nTest: number of test observations
+   *
+   * Returns:
+   *   matrix indicating for each train-test pair the frequency of cohabitation
+   */
 
   // get number of trees
   int nTree = testNodes.ncol();
@@ -38,5 +51,6 @@ IntegerMatrix countOOBCohabitants(IntegerMatrix trainNodes,
     }
   }
 
+  // return matrix
   return output;
 }

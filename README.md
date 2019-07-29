@@ -46,7 +46,7 @@ rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 10,
 
 # get conditional mean squared prediction errors and prediction
 # intervals for the test observations
-test.preds <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
+test.errors <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
 ```
 
 ### License

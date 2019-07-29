@@ -20,8 +20,8 @@
 #' @author Benjamin Lu \code{<b.lu@berkeley.edu>}; Johanna Hardin \code{<jo.hardin@pomona.edu>}
 #' @examples
 #' \donttest{
-#' # get the 0.25 and 0.8 quantiles of the error distribution associated with
-#' # each test observation
+#' # get the 0.25 and 0.8 quantiles of the error distribution associated
+#' # with each test observation
 #' qerror(c(0.25, 0.8))
 #'
 #' # same as above but only for the first three test observations

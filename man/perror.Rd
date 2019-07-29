@@ -25,13 +25,13 @@ of the conditional error distribution associated with each test prediction.
 }
 \examples{
 \donttest{
-# get the probability that the error associated with each test prediction
-# is less than -5 and the probability that the error associated with each
-# test prediction is less than 5
-perror(c(-5, 5))
+# get the probability that the error associated with each test
+# prediction is less than -4 and the probability that the error
+# associated with each test prediction is less than 7
+perror(c(-4, 7))
 
 # same as above but only for the first three test observations
-perror(c(-5, 5), 1:3)
+perror(c(-4, 7), 1:3)
 }
 }
 \seealso{

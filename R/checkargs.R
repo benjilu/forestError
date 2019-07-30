@@ -50,6 +50,6 @@ checkxs <- function(xs, n.test) {
 
 checkqs <- function(q) {
   if (max(q) > 1 | min(q) < 0) {
-    stop("Quantiles must be between 0 and 1")
+    stop("Probabilities must be between 0 and 1")
   }
 }

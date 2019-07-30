@@ -30,4 +30,4 @@
 #' # same as above but only for the first three test observations
 #' perror(c(-4, 7), 1:3)
 #' }
-perror <- function(p, xs = 1:n.test) {}
+perror <- function() {}

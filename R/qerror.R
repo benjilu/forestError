@@ -28,4 +28,4 @@
 #' # same as above but only for the first three test observations
 #' qerror(c(0.25, 0.8), 1:3)
 #' }
-qerror <- function(q, xs = 1:n.test) {}
+qerror <- function() {}

@@ -47,3 +47,9 @@ checkxs <- function(xs, n.test) {
     stop("Test indices must be whole numbers")
   }
 }
+
+checkqs <- function(q) {
+  if (max(q) > 1 | min(q) < 0) {
+    stop("Quantiles must be between 0 and 1")
+  }
+}

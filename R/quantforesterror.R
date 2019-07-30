@@ -412,7 +412,8 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       # define quantile function
       qerror <- function(q, xs = 1:n.test) {
 
-        # check xs argument for issus
+        # check q and xs arguments for issus
+        checkqs(q)
         checkxs(xs, n.test)
 
         # define quantile function evaluated for single probability

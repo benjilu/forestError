@@ -28,26 +28,4 @@
 #' # same as above but only for the first three test observations
 #' qerror(c(0.25, 0.8), 1:3)
 #' }
-qerror <- function(q, xs = 1:n.test) {
-
-  # check xs argument for issus
-  checkxs(xs, n.test)
-
-  # define quantile function evaluated for single probability
-  singleqerror <- function(singleq, exes) {
-
-    return(unname(ordered.oob.errors$x[apply(matrix(cumsums[exes, ], nrow = length(exes)), 1, FUN = function(x) min(which(x >= singleq)))]))
-  }
-
-  # if more than one probability is provided, vectorize the evaluation of
-  # singleqerror over the probabilities
-  if (length(q) > 1) {
-    to.return <- data.frame(sapply(q, FUN = function(x) singleqerror(x, xs)))
-    row.names(to.return) <- xs
-    names(to.return) <- q
-    return(to.return)
-    # else, evaluate singleqerror on the single probability provided
-  } else {
-    return(singleqerror(q, xs))
-  }
-}
+qerror <- function(q, xs = 1:n.test) {}

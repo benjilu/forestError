@@ -400,7 +400,6 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
         }
       }
 
-
       # add to output
       output <- list(output.df, perror)
       names(output) <- c("estimates", "perror")
@@ -440,7 +439,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
         output[["qerror"]] <- qerror
       } else {
         output <- list(output.df, qerror)
-        names(output) <- c("estimates", "perror")
+        names(output) <- c("estimates", "qerror")
       }
     }
   }

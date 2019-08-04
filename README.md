@@ -44,8 +44,9 @@ Ytest <- airquality[-train.ind, response.col]
 rf <- randomForest(Xtrain, Ytrain, nodesize = 5,
                    ntree = 500, keep.inbag = TRUE)
 
-# get conditional mean squared prediction errors and prediction
-# intervals for the test observations
+# get conditional mean squared prediction errors, conditional prediction
+# intervals, and conditional empirical error distribution functions for
+# the test observations
 test.errors <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
 ```
 

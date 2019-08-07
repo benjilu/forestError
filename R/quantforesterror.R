@@ -391,8 +391,13 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
         # singleperror over the quantiles
         if (length(p) > 1) {
           to.return <- data.frame(sapply(p, FUN = function(x) singleperror(x, xs)))
-          row.names(to.return) <- xs
-          names(to.return) <- p
+          if (length(xs) == 1) {
+            to.return <- unlist(to.return)
+            names(to.return) <- as.character(p)
+          } else {
+            row.names(to.return) <- xs
+            names(to.return) <- p
+          }
           return(to.return)
         # else, evaluate singleperror on the single quantile provided
         } else {
@@ -425,8 +430,13 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
         # singleqerror over the probabilities
         if (length(q) > 1) {
           to.return <- data.frame(sapply(q, FUN = function(x) singleqerror(x, xs)))
-          row.names(to.return) <- xs
-          names(to.return) <- q
+          if (length(xs) == 1) {
+            to.return <- unlist(to.return)
+            names(to.return) <- as.character(q)
+          } else {
+            row.names(to.return) <- xs
+            names(to.return) <- q
+          }
           return(to.return)
           # else, evaluate singleqerror on the single probability provided
         } else {

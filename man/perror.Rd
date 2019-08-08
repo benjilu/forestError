@@ -4,21 +4,21 @@
 \alias{perror}
 \title{Empirical cumulative distribution functions of conditional errors}
 \usage{
-perror(p, xs)
+perror(q, xs)
 }
 \arguments{
-\item{p}{A vector of quantiles.}
+\item{q}{A vector of quantiles.}
 
 \item{xs}{A vector of the indices of the test observations for which the
 conditional error CDFs are desired. Defaults to all test observations
 given in the call of \code{quantForestError}.}
 }
 \value{
-If either \code{p} or \code{xs} has length one, then a vector is
+If either \code{q} or \code{xs} has length one, then a vector is
   returned with the desired probabilities. If both have length greater than
   one, then a \code{data.frame} of probabilities is returned, with rows
   corresponding to the inputted \code{xs} and columns corresponding to the
-  inputted \code{p}.
+  inputted \code{q}.
 }
 \description{
 Returns probabilities from the estimated cumulative distribution function

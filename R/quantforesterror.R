@@ -359,16 +359,16 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
     if (pwhat) {
 
       # define the empirical CDF function
-      perror <- function(p, xs = 1:n.test) {
+      perror <- function(q, xs = 1:n.test) {
 
         # check xs argument for issus
         checkxs(xs, n.test)
 
         # define the function for a single quantile
-        singleperror <- function(singlep, exes) {
+        singleperror <- function(singleq, exes) {
 
           # get the index of the maximum error that is less than or equal to the stated quantile
-          max.error.ind <- suppressWarnings(max(which(ordered.oob.errors$x <= singlep)))
+          max.error.ind <- suppressWarnings(max(which(ordered.oob.errors$x <= singleq)))
 
           # if the index is at least 1
           if (max.error.ind != -Inf) {
@@ -389,19 +389,19 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
 
         # if more than one quantile is provided, vectorize the evaluation of
         # singleperror over the quantiles
-        if (length(p) > 1) {
-          to.return <- data.frame(sapply(p, FUN = function(x) singleperror(x, xs)))
+        if (length(q) > 1) {
+          to.return <- data.frame(sapply(q, FUN = function(x) singleperror(x, xs)))
           if (length(xs) == 1) {
             to.return <- unlist(to.return)
-            names(to.return) <- as.character(p)
+            names(to.return) <- as.character(q)
           } else {
             row.names(to.return) <- xs
-            names(to.return) <- p
+            names(to.return) <- q
           }
           return(to.return)
         # else, evaluate singleperror on the single quantile provided
         } else {
-          return(singleperror(p, xs))
+          return(singleperror(q, xs))
         }
       }
 
@@ -414,33 +414,33 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
     if (qwhat) {
 
       # define quantile function
-      qerror <- function(q, xs = 1:n.test) {
+      qerror <- function(p, xs = 1:n.test) {
 
-        # check q and xs arguments for issus
-        checkqs(q)
+        # check p and xs arguments for issus
+        checkqs(p)
         checkxs(xs, n.test)
 
         # define quantile function evaluated for single probability
-        singleqerror <- function(singleq, exes) {
+        singleqerror <- function(singlep, exes) {
 
-          return(unname(ordered.oob.errors$x[apply(matrix(cumsums[exes, ], nrow = length(exes)), 1, FUN = function(x) min(which(x >= singleq)))]))
+          return(unname(ordered.oob.errors$x[apply(matrix(cumsums[exes, ], nrow = length(exes)), 1, FUN = function(x) min(which(x >= singlep)))]))
         }
 
         # if more than one probability is provided, vectorize the evaluation of
         # singleqerror over the probabilities
-        if (length(q) > 1) {
-          to.return <- data.frame(sapply(q, FUN = function(x) singleqerror(x, xs)))
+        if (length(p) > 1) {
+          to.return <- data.frame(sapply(p, FUN = function(x) singleqerror(x, xs)))
           if (length(xs) == 1) {
             to.return <- unlist(to.return)
-            names(to.return) <- as.character(q)
+            names(to.return) <- as.character(p)
           } else {
             row.names(to.return) <- xs
-            names(to.return) <- q
+            names(to.return) <- p
           }
           return(to.return)
           # else, evaluate singleqerror on the single probability provided
         } else {
-          return(singleqerror(q, xs))
+          return(singleqerror(p, xs))
         }
       }
 

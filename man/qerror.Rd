@@ -4,21 +4,21 @@
 \alias{qerror}
 \title{Empirical quantile functions of conditional errors}
 \usage{
-qerror(q, xs)
+qerror(p, xs)
 }
 \arguments{
-\item{q}{A vector of probabilities.}
+\item{p}{A vector of probabilities.}
 
 \item{xs}{A vector of the indices of the test observations for which the
 conditional error quantiles are desired. Defaults to all test observations
 given in the call of \code{quantForestError}.}
 }
 \value{
-If either \code{q} or \code{xs} has length one, then a vector is
+If either \code{p} or \code{xs} has length one, then a vector is
   returned with the desired quantiles. If both have length greater than
   one, then a \code{data.frame} of quantiles is returned, with rows
   corresponding to the inputted \code{xs} and columns corresponding to the
-  inputted \code{q}.
+  inputted \code{p}.
 }
 \description{
 Returns quantiles from the estimated quantile function of the conditional

@@ -133,7 +133,7 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' @importFrom Rcpp sourceCpp
 #' @importFrom stats predict
 #' @export
-quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("mspe", "interval", "cons.interval", "p.error", "q.error"), alpha = 0.05, rcpp = TRUE) {
+quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("mspe", "interval"), alpha = 0.05, rcpp = TRUE) {
 
   # check forest, X.train, and X.test arguments for issues
   checkForest(forest)

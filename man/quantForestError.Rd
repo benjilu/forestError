@@ -6,8 +6,7 @@
 \title{Quantify random forest prediction error}
 \usage{
 quantForestError(forest, X.train, X.test, Y.train = NULL,
-  what = c("mspe", "interval", "cons.interval", "p.error", "q.error"),
-  alpha = 0.05, rcpp = TRUE)
+  what = c("mspe", "interval"), alpha = 0.05, rcpp = TRUE)
 }
 \arguments{
 \item{forest}{The random forest object being used for prediction.}

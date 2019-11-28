@@ -1,15 +1,16 @@
 Package: forestError
 Type: Package
-Title: Individualized Prediction Errors and Intervals for Random Forests
+Title: A Unified Framework for Random Forest Prediction Error Inference
 Version: 0.0.0.9000
 Author: Benjamin Lu and Johanna Hardin
 Maintainer: Benjamin Lu <b.lu@berkeley.edu>
-Description: Estimates conditional mean squared prediction errors, conditional
-    prediction intervals, and conditional error distributions for random forest
-    predictions. The errors, intervals, and distributions are conditional in
-    the sense that each error and interval is specific to the individual
-    observation whose response is being predicted. More details can be found in
-    Lu and Hardin (2019+) (in preparation).
+Description: Estimates the conditional error distributions of random forest
+    predictions and common parameters of those distributions, including
+    conditional mean squared prediction errors, conditional biases, and 
+    conditional prediction intervals. The error distributions and associated
+    parameters are conditional in the sense that each distribution is 
+    specific to the individual observation whose response is being predicted.
+    More details can be found in Lu and Hardin (2019+) (in preparation).
 Imports: 
     Rcpp
 License: GPL-3

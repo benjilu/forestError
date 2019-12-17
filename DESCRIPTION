@@ -1,6 +1,6 @@
 Package: forestError
 Type: Package
-Title: A Unified Framework for Random Forest Prediction Error Inference
+Title: A Unified Framework for Random Forest Prediction Error Estimation
 Version: 0.0.0.9000
 Author: Benjamin Lu and Johanna Hardin
 Maintainer: Benjamin Lu <b.lu@berkeley.edu>
@@ -10,7 +10,7 @@ Description: Estimates the conditional error distributions of random forest
     conditional prediction intervals. The error distributions and associated
     parameters are conditional in the sense that each distribution is 
     specific to the individual observation whose response is being predicted.
-    More details can be found in Lu and Hardin (2019+) (in preparation).
+    More details can be found in Lu and Hardin (2019+).
 Imports: 
     Rcpp
 License: GPL-3

@@ -7,7 +7,7 @@
 \usage{
 quantForestError(forest, X.train, X.test, Y.train = NULL,
   what = c("mspe", "bias", "interval", "p.error", "q.error"),
-  alpha = 0.05, rcpp = TRUE)
+  alpha = 0.05)
 }
 \arguments{
 \item{forest}{The random forest object being used for prediction.}
@@ -37,11 +37,6 @@ functions (\code{"q.error"}).}
 \item{alpha}{The type-I error rate desired for the conditional prediction
 intervals; required if \code{"interval"} or \code{"cons.interval"} are
 included in \code{what}.}
-
-\item{rcpp}{A \code{logical} indicating whether the weights should be
-computed in \code{C++} using the \code{Rcpp} package for reduced runtime.
-Recommended especially when the number of training observations, test
-observations, or trees is large. Defaults to \code{TRUE}.}
 }
 \value{
 A \code{data.frame} with one or more of the following columns, as described
@@ -133,8 +128,7 @@ test.errors <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
 # get just the conditional mean squared prediction errors
 # and prediction intervals for the test observations
 test.errors <- quantForestError(rf, Xtrain, Xtest,
-                                what = c("mspe", "interval",
-                                         "cons.interval"),
+                                what = c("mspe", "interval"),
                                 alpha = 0.05)
 
 # get just the conditional empirical error distribution

@@ -1,13 +1,11 @@
 citHeader("To cide forestError in publications, please use:")
 
 citEntry(entry = "Article",
-  title = "Individualized Prediction Errors and Intervals for Random Forests",
+  title = "A Unified Framework for Random Forest Prediction Error Estimation",
   author = personList(as.person("Benjamin Lu"),
                       as.person("Johanna Hardin")),
-  journal = "In preparation",
   year = "2019+",
 
   textVersion = paste("Benjamin Lu, Johanna Hardin (2019+).",
-                      "Individualized Prediction Errors and Intervals for Random Forests.",
-                      "In preparation.")
+                      "A Unified Framework for Random Forest Prediction Error Estimation.")
 )

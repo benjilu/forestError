@@ -56,10 +56,6 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' @param alpha The type-I error rate desired for the conditional prediction
 #'   intervals; required if \code{"interval"} or \code{"cons.interval"} are
 #'   included in \code{what}.
-#' @param rcpp A \code{logical} indicating whether the weights should be
-#'   computed in \code{C++} using the \code{Rcpp} package for reduced runtime.
-#'   Recommended especially when the number of training observations, test
-#'   observations, or trees is large. Defaults to \code{TRUE}.
 #'
 #' @return A \code{data.frame} with one or more of the following columns, as described
 #'   in the details section:
@@ -121,8 +117,7 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' # get just the conditional mean squared prediction errors
 #' # and prediction intervals for the test observations
 #' test.errors <- quantForestError(rf, Xtrain, Xtest,
-#'                                 what = c("mspe", "interval",
-#'                                          "cons.interval"),
+#'                                 what = c("mspe", "interval"),
 #'                                 alpha = 0.05)
 #'
 #' # get just the conditional empirical error distribution
@@ -137,7 +132,7 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' @importFrom Rcpp sourceCpp
 #' @importFrom stats predict
 #' @export
-quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("mspe", "bias", "interval", "p.error", "q.error"), alpha = 0.05, rcpp = TRUE) {
+quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("mspe", "bias", "interval", "p.error", "q.error"), alpha = 0.05) {
 
   # check forest, X.train, and X.test arguments for issues
   checkForest(forest)
@@ -233,25 +228,8 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
   # (for all other trees, set the terminal node to be 0)
   train.oob.terminal.nodes <- train.terminal.nodes * as.numeric(bag.count == 0)
 
-  # if the user wishes to compute cohabitants in R
-  if (!rcpp) {
-
-    # initialize dataframe
-    oob.weights <- data.frame(matrix(rep(NA, n.test * n.train), nrow = n.test))
-
-    # for each test observation
-    for (test.obs in 1:n.test) {
-
-      # get for each training observation the number of times it is an OOB cohabitant of the test observation and record it in the dataframe
-      oob.weights[test.obs, ] <- rowSums(sweep(train.oob.terminal.nodes, MARGIN = 2, test.terminal.nodes[test.obs, ], "=="))
-    }
-
-  # else, if the user wishes to compute cohabitants in C++
-  } else {
-
-    # run C++ function
-    oob.weights <- countOOBCohabitants(train.oob.terminal.nodes, test.terminal.nodes, n.train, n.test)
-  }
+  # run C++ function to compute out-of-bag cohabitants
+  oob.weights <- countOOBCohabitants(train.oob.terminal.nodes, test.terminal.nodes, n.train, n.test)
 
   # for each test observation, convert the number of times each training observation
   # is an OOB cohabitant to the proportion of times each training observation is an

@@ -57,6 +57,6 @@ See `DESCRIPTION` for information.
 Benjamin Lu and Johanna Hardin
 
 ### References
-* B. Lu and J. Hardin. A unified framework for random forest prediction error estimation. 2019+.
+* B. Lu and J. Hardin. A unified framework for random forest prediction error estimation. arXiv:1912.07435, 2019+.
 * J. Lei, M. G’Sell, A. Rinaldo, R.J. Tibshirani, and L. Wasserman. Distribution-free predictive inference for regression. Journal of the American Statistical Association, 113:1094-1111, 2018.
 * N. Meinshausen. Quantile regression forests. Journal of Machine Learning Research, 7:983–999, 2006.

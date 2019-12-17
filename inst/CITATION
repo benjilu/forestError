@@ -4,8 +4,10 @@ citEntry(entry = "Article",
   title = "A Unified Framework for Random Forest Prediction Error Estimation",
   author = personList(as.person("Benjamin Lu"),
                       as.person("Johanna Hardin")),
+  journal = "arXiv preprint arXiv:1912.07435",
   year = "2019+",
 
-  textVersion = paste("Benjamin Lu, Johanna Hardin (2019+).",
-                      "A Unified Framework for Random Forest Prediction Error Estimation.")
+  textVersion = paste("Benjamin Lu and Johanna Hardin.",
+                      "A Unified Framework for Random Forest Prediction Error Estimation.",
+                      "arXiv preprint arXiv:1912.07435, 2019.")
 )

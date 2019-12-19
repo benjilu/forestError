@@ -57,4 +57,4 @@ See `DESCRIPTION` for information.
 Benjamin Lu and Johanna Hardin
 
 ### References
-* B. Lu and J. Hardin. A unified framework for random forest prediction error estimation. arXiv:1912.07435, 2019+.
+* B. Lu and J. Hardin. A unified framework for random forest prediction error estimation. arXiv:1912.07435, 2019+. [[arXiv](https://arxiv.org/abs/1912.07435)]

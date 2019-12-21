@@ -19,9 +19,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// countOOBCohabitantsTestPar
+IntegerVector countOOBCohabitantsTestPar(IntegerMatrix trainNodes, IntegerVector testNodes, double nTrain);
+RcppExport SEXP _forestError_countOOBCohabitantsTestPar(SEXP trainNodesSEXP, SEXP testNodesSEXP, SEXP nTrainSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerMatrix >::type trainNodes(trainNodesSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type testNodes(testNodesSEXP);
+    Rcpp::traits::input_parameter< double >::type nTrain(nTrainSEXP);
+    rcpp_result_gen = Rcpp::wrap(countOOBCohabitantsTestPar(trainNodes, testNodes, nTrain));
+    return rcpp_result_gen;
+END_RCPP
+}
+// countOOBCohabitantsTrainPar
+IntegerVector countOOBCohabitantsTrainPar(IntegerVector trainNodes, IntegerMatrix testNodes, double nTest);
+RcppExport SEXP _forestError_countOOBCohabitantsTrainPar(SEXP trainNodesSEXP, SEXP testNodesSEXP, SEXP nTestSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< IntegerVector >::type trainNodes(trainNodesSEXP);
+    Rcpp::traits::input_parameter< IntegerMatrix >::type testNodes(testNodesSEXP);
+    Rcpp::traits::input_parameter< double >::type nTest(nTestSEXP);
+    rcpp_result_gen = Rcpp::wrap(countOOBCohabitantsTrainPar(trainNodes, testNodes, nTest));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_forestError_countOOBCohabitants", (DL_FUNC) &_forestError_countOOBCohabitants, 4},
+    {"_forestError_countOOBCohabitantsTestPar", (DL_FUNC) &_forestError_countOOBCohabitantsTestPar, 3},
+    {"_forestError_countOOBCohabitantsTrainPar", (DL_FUNC) &_forestError_countOOBCohabitantsTrainPar, 3},
     {NULL, NULL, 0}
 };
 

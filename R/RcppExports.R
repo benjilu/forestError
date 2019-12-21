@@ -5,3 +5,11 @@ countOOBCohabitants <- function(trainNodes, testNodes, nTrain, nTest) {
     .Call('_forestError_countOOBCohabitants', PACKAGE = 'forestError', trainNodes, testNodes, nTrain, nTest)
 }
 
+countOOBCohabitantsTestPar <- function(trainNodes, testNodes, nTrain) {
+    .Call('_forestError_countOOBCohabitantsTestPar', PACKAGE = 'forestError', trainNodes, testNodes, nTrain)
+}
+
+countOOBCohabitantsTrainPar <- function(trainNodes, testNodes, nTest) {
+    .Call('_forestError_countOOBCohabitantsTrainPar', PACKAGE = 'forestError', trainNodes, testNodes, nTest)
+}
+

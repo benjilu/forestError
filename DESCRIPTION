@@ -12,7 +12,9 @@ Description: Estimates the conditional error distributions of random forest
     specific to the individual observation whose response is being predicted.
     More details can be found in Lu and Hardin (2019+).
 Imports: 
-    Rcpp
+    Rcpp,
+    foreach,
+    doParallel
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

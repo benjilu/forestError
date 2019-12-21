@@ -18,11 +18,17 @@ checkXtrainXtest <- function(X.train, X.test) {
   }
 }
 
-checkYtrain <- function(Y.train, n.train) {
-  if (is.null(Y.train)) {
-    stop("You must supply the training responses (Y.train)")
-  } else if (length(Y.train) != n.train) {
-    stop("Number of training responses does not match number of training observations")
+checkYtrain <- function(forest, Y.train, n.train) {
+  if ("ranger" %in% class(forest)) {
+    if (is.null(Y.train)) {
+      stop("You must supply the training responses (Y.train)")
+    } else if (length(Y.train) != n.train) {
+      stop("Number of training responses does not match number of training observations")
+    }
+  } else if (!is.null(Y.train)) {
+    if (Y.train == "train" | Y.train == "test") {
+      stop("It looks like you passed your argument for par.over through Y.train. Make sure you explicitly label your arguments")
+    }
   }
 }
 
@@ -51,5 +57,23 @@ checkxs <- function(xs, n.test) {
 checkqs <- function(q) {
   if (max(q) > 1 | min(q) < 0) {
     stop("Probabilities must be between 0 and 1")
+  }
+}
+
+checkparcores <- function(n.cores, par.over) {
+  if (is.null(n.cores)) {
+    stop("Number of cores must be specified")
+  } else if (n.cores < 1) {
+    stop("Number of cores must be at least 1")
+  } else if (n.cores %% 1 != 0) {
+    stop("Number of cores must be integer")
+  } else if (!is.null(n.cores) & is.null(par.over)) {
+    if (n.cores > 1) {
+      stop("You must specify whether to parallelize over the training set or the test set")
+    }
+  } else if (!is.null(n.cores) & !is.null(par.over)) {
+     if (par.over != "train" & par.over != "test") {
+      stop("par.over must be either train, test, or NULL")
+    }
   }
 }

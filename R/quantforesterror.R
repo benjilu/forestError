@@ -49,6 +49,12 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #'   functions (\code{"q.error"}).
 #' @param alpha The type-I error rate desired for the conditional prediction
 #'   intervals; required if \code{"interval"} is included in \code{what}.
+#' @param n.cores Number of cores over which to parallelize the computations,
+#'   if desired.
+#' @param par.over Character indicating whether to parallelize the computations
+#'   over the training set or over the test set. Possible options are
+#'   \code{"train"} and \code{"test"}. In general, parallelization over
+#'   whichever set has more units is recommended if the sample size is large.
 #'
 #' @return A \code{data.frame} with one or more of the following columns, as described
 #'   in the details section:
@@ -121,12 +127,16 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' @useDynLib forestError
 #' @importFrom Rcpp sourceCpp
 #' @importFrom stats predict
+#' @importFrom foreach %dopar% foreach
+#' @importFrom doParallel registerDoParallel
 #' @export
-quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("mspe", "bias", "interval", "p.error", "q.error"), alpha = 0.05) {
+quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("mspe", "bias", "interval", "p.error", "q.error"), alpha = 0.05, n.cores = 1, par.over = NULL) {
 
-  # check forest, X.train, and X.test arguments for issues
+  # check forest, X.train, X.test, Y.train, n.cores, and par.over arguments for issues
   checkForest(forest)
   checkXtrainXtest(X.train, X.test)
+  checkYtrain(forest, Y.train, n.train)
+  checkparcores(n.cores, par.over)
 
   # get number of training and test observations
   n.train <- nrow(X.train)
@@ -178,9 +188,6 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
   # else, if the forest is from the ranger package
   } else if ("ranger" %in% class(forest)) {
 
-    # check Y.train argument for issues
-    checkYtrain(Y.train, n.train)
-
     # get terminal nodes of all observations
     train.terminal.nodes <- predict(forest, X.train, type = "terminalNodes")$predictions
     test.terminal.nodes <- predict(forest, X.test, type = "terminalNodes")$predictions
@@ -218,8 +225,69 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
   # (for all other trees, set the terminal node to be 0)
   train.oob.terminal.nodes <- train.terminal.nodes * as.numeric(bag.count == 0)
 
-  # run C++ function to compute out-of-bag cohabitants
-  oob.weights <- countOOBCohabitants(train.oob.terminal.nodes, test.terminal.nodes, n.train, n.test)
+  ##############################################################################
+  ### run C++ function to compute out-of-bag cohabitants either in parallel or not
+  ##############################################################################
+
+  # if user specifies a number of cores for parallel processing
+  if (n.cores > 1) {
+
+    # if the user wants to parallelize over the training units
+    if (par.over == "train") {
+
+      # construct cluster
+      cl <- parallel::makeCluster(n.cores)
+
+      # register parallel backend
+      doParallel::registerDoParallel(cl)
+
+      # count out-of-bag cohabitants in parallel over the training units
+      oob.weights <-
+        foreach::foreach(i = 1:n.train,
+                         .combine = "cbind",
+                         .packages = "forestError") %dopar% {
+                           countOOBCohabitantsTrainPar(train.oob.terminal.nodes[i, ], test.terminal.nodes, n.test)
+                           }
+
+      # shut down the cluster.
+      parallel::stopCluster(cl)
+
+      # rename columns
+      colnames(oob.weights) <- NULL
+
+      # else parallelize over the test units
+    } else {
+
+      # construct cluster
+      cl <- parallel::makeCluster(n.cores)
+
+      # register parallel backend
+      doParallel::registerDoParallel(cl)
+
+      # count out-of-bag cohabitants in parallel over the test units
+      oob.weights <-
+        foreach::foreach(i = 1:n.test,
+                         .combine = "rbind",
+                         .packages = "forestError") %dopar% {
+                           countOOBCohabitantsTestPar(train.oob.terminal.nodes, test.terminal.nodes[i, ], n.train)
+                           }
+
+      # shut down the cluster.
+      parallel::stopCluster(cl)
+
+      # rename rows
+      rownames(oob.weights) <- NULL
+    }
+
+    # else, count out-of-bag cohabitants not in parallel
+  } else {
+
+    oob.weights <- countOOBCohabitants(train.oob.terminal.nodes, test.terminal.nodes, n.train, n.test)
+  }
+
+  ##############################################################################
+  ### end C++ section
+  ##############################################################################
 
   # for each test observation, convert the number of times each training observation
   # is an OOB cohabitant to the proportion of times each training observation is an

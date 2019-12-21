@@ -7,7 +7,7 @@
 \usage{
 quantForestError(forest, X.train, X.test, Y.train = NULL,
   what = c("mspe", "bias", "interval", "p.error", "q.error"),
-  alpha = 0.05)
+  alpha = 0.05, n.cores = 1, par.over = NULL)
 }
 \arguments{
 \item{forest}{The random forest object being used for prediction.}
@@ -35,6 +35,14 @@ functions (\code{"q.error"}).}
 
 \item{alpha}{The type-I error rate desired for the conditional prediction
 intervals; required if \code{"interval"} is included in \code{what}.}
+
+\item{n.cores}{Number of cores over which to parallelize the computations,
+if desired.}
+
+\item{par.over}{Character indicating whether to parallelize the computations
+over the training set or over the test set. Possible options are
+\code{"train"} and \code{"test"}. In general, parallelization over
+whichever set has more units is recommended if the sample size is large.}
 }
 \value{
 A \code{data.frame} with one or more of the following columns, as described

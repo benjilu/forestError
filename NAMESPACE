@@ -2,5 +2,8 @@
 
 export(quantForestError)
 importFrom(Rcpp,sourceCpp)
+importFrom(doParallel,registerDoParallel)
+importFrom(foreach,"%dopar%")
+importFrom(foreach,foreach)
 importFrom(stats,predict)
 useDynLib(forestError)

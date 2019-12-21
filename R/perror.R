@@ -1,4 +1,4 @@
-#' Empirical cumulative distribution functions of conditional errors
+#' Estimated conditional prediction error CDFs
 #'
 #' Returns probabilities from the estimated cumulative distribution function
 #' of the conditional error distribution associated with each test prediction.

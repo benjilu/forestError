@@ -2,7 +2,7 @@
 % Please edit documentation in R/qerror.R
 \name{qerror}
 \alias{qerror}
-\title{Empirical quantile functions of conditional errors}
+\title{Estimated conditional prediction error quantile functions}
 \usage{
 qerror(p, xs)
 }

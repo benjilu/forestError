@@ -1,4 +1,4 @@
-#' Empirical quantile functions of conditional errors
+#' Estimated conditional prediction error quantile functions
 #'
 #' Returns quantiles from the estimated quantile function of the conditional
 #' error distribution associated with each test prediction.

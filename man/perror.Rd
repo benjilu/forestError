@@ -2,7 +2,7 @@
 % Please edit documentation in R/perror.R
 \name{perror}
 \alias{perror}
-\title{Empirical cumulative distribution functions of conditional errors}
+\title{Estimated conditional prediction error CDFs}
 \usage{
 perror(q, xs)
 }

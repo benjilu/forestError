@@ -113,8 +113,8 @@ Ytest <- airquality[-train.ind, response.col]
 rf <- randomForest(Xtrain, Ytrain, nodesize = 5,
                    ntree = 500, keep.inbag = TRUE)
 
-# get conditional mean squared prediction errors, biases,
-# prediction intervals, and estimated error distribution
+# estimate conditional mean squared prediction errors,
+# biases, prediction intervals, and error distribution
 # functions for the test observations
 test.errors <- quantForestError(rf, Xtrain, Xtest,
                                 alpha = 0.05)
@@ -124,13 +124,13 @@ test.errors <- quantForestError(rf, Xtrain, Xtest,
                                 alpha = 0.05,
                                 n.cores = 4)
 
-# get just the conditional mean squared prediction errors
+# estimate just the conditional mean squared prediction errors
 # and prediction intervals for the test observations
 test.errors <- quantForestError(rf, Xtrain, Xtest,
                                 what = c("mspe", "interval"),
                                 alpha = 0.05)
 
-# get just the conditional estimated error distribution
+# estimate just the conditional error distribution
 # functions for the test observations
 test.errors <- quantForestError(rf, Xtrain, Xtest,
                                 what = c("p.error", "q.error"))

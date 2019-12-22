@@ -7,7 +7,7 @@
 \usage{
 quantForestError(forest, X.train, X.test, Y.train = NULL,
   what = c("mspe", "bias", "interval", "p.error", "q.error"),
-  alpha = 0.05, n.cores = 1, par.over = NULL)
+  alpha = 0.05, n.cores = 1)
 }
 \arguments{
 \item{forest}{The random forest object being used for prediction.}
@@ -36,10 +36,6 @@ functions (\code{"q.error"}).}
 intervals; required if \code{"interval"} is included in \code{what}.}
 
 \item{n.cores}{Number of cores to use (for parallel computation).}
-
-\item{par.over}{Character indicating whether to parallelize the computations
-over the training set or over the test set. Possible options are
-\code{"train"} and \code{"test"}.}
 }
 \value{
 A \code{data.frame} with one or more of the following columns, as described
@@ -58,9 +54,9 @@ A \code{data.frame} with one or more of the following columns, as described
   In addition, one or both of the following functions, as described in the
   details section:
 
-  \item{perror}{The empirical cumulative distribution functions of the
+  \item{perror}{The estimated cumulative distribution functions of the
   conditional error distributions associated with the test predictions}
-  \item{qerror}{The empirical quantile functions of the conditional error
+  \item{qerror}{The estimated quantile functions of the conditional error
   distributions associated with the test predictions}
 }
 \description{
@@ -75,10 +71,7 @@ training the random forest using \code{randomForestSRC}, \code{membership}
 must be set to \code{TRUE}.
 
 The computation can be parallelized by setting the value of \code{n.cores} to
-be greater than 1 and setting \code{par.over} to be either \code{"train"} or
-\code{"test"}. In general, parallelization over the training set, as opposed
-to over the test set, is recommended unless the training set is substantially
-larger than the test set.
+be greater than 1.
 
 The random forest predictions are always returned as a \code{data.frame}. Additional
 columns are included in the \code{data.frame} depending on the user's selections in
@@ -93,8 +86,8 @@ upper bounds of a conditional prediction interval for each test prediction.
 If \code{"p.error"} or \code{"q.error"} is included in \code{what}, then a
 list will be returned as output. The first element of the list, named
 \code{"estimates"}, is the \code{data.frame} described in the above paragraph. The
-other one or two elements of the list are the empirical CDFs (\code{perror})
-and/or the empirical quantile functions (\code{qerror}) of the conditional
+other one or two elements of the list are the estimated CDFs (\code{perror})
+and/or the estimated quantile functions (\code{qerror}) of the conditional
 error distributions associated with the test predictions.
 }
 \examples{
@@ -121,16 +114,15 @@ rf <- randomForest(Xtrain, Ytrain, nodesize = 5,
                    ntree = 500, keep.inbag = TRUE)
 
 # get conditional mean squared prediction errors, biases,
-# prediction intervals, and empirical error distribution
+# prediction intervals, and estimated error distribution
 # functions for the test observations
 test.errors <- quantForestError(rf, Xtrain, Xtest,
                                 alpha = 0.05)
 
-# parallelize the computation
+# do the same as above but in parallel
 test.errors <- quantForestError(rf, Xtrain, Xtest,
                                 alpha = 0.05,
-                                n.cores = 4,
-                                par.over = "train")
+                                n.cores = 4)
 
 # get just the conditional mean squared prediction errors
 # and prediction intervals for the test observations
@@ -138,7 +130,7 @@ test.errors <- quantForestError(rf, Xtrain, Xtest,
                                 what = c("mspe", "interval"),
                                 alpha = 0.05)
 
-# get just the conditional empirical error distribution
+# get just the conditional estimated error distribution
 # functions for the test observations
 test.errors <- quantForestError(rf, Xtrain, Xtest,
                                 what = c("p.error", "q.error"))

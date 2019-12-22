@@ -46,13 +46,13 @@ rf <- randomForest(Xtrain, Ytrain, nodesize = 5,
                    ntree = 500, keep.inbag = TRUE)
 
 # get conditional mean squared prediction errors, conditional biases,
-# conditional prediction intervals, and conditional empirical error
+# conditional prediction intervals, and estimated conditional error
 # distribution functions for the test observations
 test.errors <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
 
 # do the same as above but this time in parallel
 test.errors <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05,
-                                n.cores = 4, par.over = "train")
+                                n.cores = 4)
 ```
 
 ### License

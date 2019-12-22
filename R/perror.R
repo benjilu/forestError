@@ -1,7 +1,7 @@
 #' Estimated conditional prediction error CDFs
 #'
-#' Returns probabilities from the estimated cumulative distribution function
-#' of the conditional error distribution associated with each test prediction.
+#' Returns probabilities from the estimated conditional cumulative distribution
+#' function of the prediction error associated with each test observation.
 #'
 #' @usage perror(q, xs)
 #'

@@ -48,6 +48,10 @@ rf <- randomForest(Xtrain, Ytrain, nodesize = 5,
 # conditional prediction intervals, and conditional empirical error
 # distribution functions for the test observations
 test.errors <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
+
+# do the same as above but this time in parallel
+test.errors <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05,
+                                n.cores = 4, par.over = "train")
 ```
 
 ### License

@@ -21,8 +21,8 @@ If either \code{q} or \code{xs} has length one, then a vector is
   inputted \code{q}.
 }
 \description{
-Returns probabilities from the estimated cumulative distribution function
-of the conditional error distribution associated with each test prediction.
+Returns probabilities from the estimated conditional cumulative distribution
+function of the prediction error associated with each test observation.
 }
 \examples{
 \donttest{

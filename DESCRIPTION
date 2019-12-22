@@ -7,10 +7,8 @@ Maintainer: Benjamin Lu <b.lu@berkeley.edu>
 Description: Estimates the conditional error distributions of random forest
     predictions and common parameters of those distributions, including
     conditional mean squared prediction errors, conditional biases, and 
-    conditional prediction intervals. The error distributions and associated
-    parameters are conditional in the sense that each distribution is 
-    specific to the individual observation whose response is being predicted.
-    More details can be found in Lu and Hardin (2019+).
+    conditional quantiles. This package is compatible with several of the
+    existing packages that implement random forests in R.
 Imports: 
     Rcpp,
     foreach,

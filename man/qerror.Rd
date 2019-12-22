@@ -21,8 +21,8 @@ If either \code{p} or \code{xs} has length one, then a vector is
   inputted \code{p}.
 }
 \description{
-Returns quantiles from the estimated quantile function of the conditional
-error distribution associated with each test prediction.
+Returns quantiles of the estimated conditional error distribution associated
+with each test prediction.
 }
 \examples{
 \donttest{

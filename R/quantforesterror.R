@@ -1,5 +1,5 @@
 # avoid check note
-if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.errors", "cumsums"))}
+if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.errors", "cumsums", "unit"))}
 
 #' Quantify random forest prediction error
 #'
@@ -11,6 +11,12 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' \code{quantregForest}, \code{keep.inbag} must be set to \code{TRUE}. When
 #' training the random forest using \code{randomForestSRC}, \code{membership}
 #' must be set to \code{TRUE}.
+#'
+#' The computation can be parallelized by setting the value of \code{n.cores} to
+#' be greater than 1 and setting \code{par.over} to be either \code{"train"} or
+#' \code{"test"}. In general, parallelization over the training set, as opposed
+#' to over the test set, is recommended unless the training set is substantially
+#' larger than the test set.
 #'
 #' The random forest predictions are always returned as a \code{data.frame}. Additional
 #' columns are included in the \code{data.frame} depending on the user's selections in
@@ -38,9 +44,8 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #'   a predictor variable.
 #' @param Y.train A vector of the responses of the observations that were used
 #'   to train \code{forest}. Required if \code{forest} was created using
-#'   the \code{ranger} package, but not if \code{forest} was created using the
-#'   \code{randomForest} package, the \code{randomForestSRC} package, or the
-#'   \code{quantregForest} package.
+#'   \code{ranger}, but not if \code{forest} was created using \code{randomForest},
+#'   \code{randomForestSRC}, or \code{quantregForest}.
 #' @param what A vector of characters indicating what outputs are desired.
 #'   Possible options are conditional mean squared prediction error estimates
 #'   (\code{"mspe"}), conditional bias estimates (\code{"bias"}), conditional
@@ -49,18 +54,16 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #'   functions (\code{"q.error"}).
 #' @param alpha The type-I error rate desired for the conditional prediction
 #'   intervals; required if \code{"interval"} is included in \code{what}.
-#' @param n.cores Number of cores over which to parallelize the computations,
-#'   if desired.
+#' @param n.cores Number of cores to use (for parallel computation).
 #' @param par.over Character indicating whether to parallelize the computations
 #'   over the training set or over the test set. Possible options are
-#'   \code{"train"} and \code{"test"}. In general, parallelization over
-#'   whichever set has more units is recommended if the sample size is large.
+#'   \code{"train"} and \code{"test"}.
 #'
 #' @return A \code{data.frame} with one or more of the following columns, as described
 #'   in the details section:
 #'
 #'   \item{pred}{The random forest predictions of the test observations}
-#'   \item{error}{The estimated conditional mean square prediction errors of
+#'   \item{mspe}{The estimated conditional mean square prediction errors of
 #'   the random forest predictions}
 #'   \item{bias}{The estimated conditional biases of the random forest
 #'   predictions}
@@ -109,6 +112,12 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' # functions for the test observations
 #' test.errors <- quantForestError(rf, Xtrain, Xtest,
 #'                                 alpha = 0.05)
+#'
+#' # parallelize the computation
+#' test.errors <- quantForestError(rf, Xtrain, Xtest,
+#'                                 alpha = 0.05,
+#'                                 n.cores = 4,
+#'                                 par.over = "train")
 #'
 #' # get just the conditional mean squared prediction errors
 #' # and prediction intervals for the test observations
@@ -243,10 +252,10 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
 
       # count out-of-bag cohabitants in parallel over the training units
       oob.weights <-
-        foreach::foreach(i = 1:n.train,
+        foreach::foreach(unit = 1:n.train,
                          .combine = "cbind",
                          .packages = "forestError") %dopar% {
-                           countOOBCohabitantsTrainPar(train.oob.terminal.nodes[i, ], test.terminal.nodes, n.test)
+                           countOOBCohabitantsTrainPar(train.oob.terminal.nodes[unit, ], test.terminal.nodes, n.test)
                            }
 
       # shut down the cluster.
@@ -266,10 +275,10 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
 
       # count out-of-bag cohabitants in parallel over the test units
       oob.weights <-
-        foreach::foreach(i = 1:n.test,
+        foreach::foreach(unit = 1:n.test,
                          .combine = "rbind",
                          .packages = "forestError") %dopar% {
-                           countOOBCohabitantsTestPar(train.oob.terminal.nodes, test.terminal.nodes[i, ], n.train)
+                           countOOBCohabitantsTestPar(train.oob.terminal.nodes, test.terminal.nodes[unit, ], n.train)
                            }
 
       # shut down the cluster.
@@ -384,7 +393,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       current.col <- current.col + 2
     }
 
-    # if the user requests conservative prediction intervals (for testing purposes only -- do not use)
+    # if the user requests conservative prediction intervals (for testing purposes only -- not used)
     if (conswhat) {
 
       # check the alpha argument for issues
@@ -510,10 +519,10 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
 
   # return output
   if (is.null(output)) {
-    names(output.df) <- c("pred", "error", "bias", "lower", "upper", "lowerCons", "upperCons")[c(TRUE, mspewhat, biaswhat, intervalwhat, intervalwhat, conswhat, conswhat)]
+    names(output.df) <- c("pred", "mspe", "bias", "lower", "upper", "lowerCons", "upperCons")[c(TRUE, mspewhat, biaswhat, intervalwhat, intervalwhat, conswhat, conswhat)]
     return(output.df)
   } else {
-    names(output$estimates) <- c("pred", "error", "bias", "lower", "upper", "lowerCons", "upperCons")[c(TRUE, mspewhat, biaswhat, intervalwhat, intervalwhat, conswhat, conswhat)]
+    names(output$estimates) <- c("pred", "mspe", "bias", "lower", "upper", "lowerCons", "upperCons")[c(TRUE, mspewhat, biaswhat, intervalwhat, intervalwhat, conswhat, conswhat)]
     return(output)
   }
 }

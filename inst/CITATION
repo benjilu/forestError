@@ -9,5 +9,5 @@ citEntry(entry = "Article",
 
   textVersion = paste("Benjamin Lu and Johanna Hardin.",
                       "A Unified Framework for Random Forest Prediction Error Estimation.",
-                      "arXiv preprint arXiv:1912.07435, 2019.")
+                      "arXiv preprint arXiv:1912.07435, 2019+.")
 )

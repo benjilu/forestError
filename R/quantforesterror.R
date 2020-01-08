@@ -43,12 +43,11 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #'   to train \code{forest}. Required if \code{forest} was created using
 #'   \code{ranger}, but not if \code{forest} was created using \code{randomForest},
 #'   \code{randomForestSRC}, or \code{quantregForest}.
-#' @param what A vector of characters indicating what outputs are desired.
-#'   Possible options are conditional mean squared prediction error estimates
-#'   (\code{"mspe"}), conditional bias estimates (\code{"bias"}), conditional
-#'   prediction intervals (\code{"interval"}), the conditional error
-#'   distribution functions (\code{"p.error"}), and the conditional quantile
-#'   functions (\code{"q.error"}).
+#' @param what A vector of characters indicating what estimates are desired.
+#'   Possible options are conditional mean squared prediction errors (\code{"mspe"}),
+#'   conditional biases (\code{"bias"}), conditional prediction intervals (\code{"interval"}),
+#'   conditional error distribution functions (\code{"p.error"}), and
+#'   conditional quantile functions (\code{"q.error"}).
 #' @param alpha The type-I error rate desired for the conditional prediction
 #'   intervals; required if \code{"interval"} is included in \code{what}.
 #' @param n.cores Number of cores to use (for parallel computation).
@@ -496,7 +495,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       qerror <- function(p, xs = 1:n.test) {
 
         # check p and xs arguments for issus
-        checkqs(p)
+        checkps(p)
         checkxs(xs, n.test)
 
         # define quantile function evaluated for single probability

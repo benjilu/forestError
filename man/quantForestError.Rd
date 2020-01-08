@@ -25,12 +25,11 @@ to train \code{forest}. Required if \code{forest} was created using
 \code{ranger}, but not if \code{forest} was created using \code{randomForest},
 \code{randomForestSRC}, or \code{quantregForest}.}
 
-\item{what}{A vector of characters indicating what outputs are desired.
-Possible options are conditional mean squared prediction error estimates
-(\code{"mspe"}), conditional bias estimates (\code{"bias"}), conditional
-prediction intervals (\code{"interval"}), the conditional error
-distribution functions (\code{"p.error"}), and the conditional quantile
-functions (\code{"q.error"}).}
+\item{what}{A vector of characters indicating what estimates are desired.
+Possible options are conditional mean squared prediction errors (\code{"mspe"}),
+conditional biases (\code{"bias"}), conditional prediction intervals (\code{"interval"}),
+conditional error distribution functions (\code{"p.error"}), and
+conditional quantile functions (\code{"q.error"}).}
 
 \item{alpha}{The type-I error rate desired for the conditional prediction
 intervals; required if \code{"interval"} is included in \code{what}.}

@@ -1,3 +1,4 @@
+# check forest argument for problems
 checkForest <- function(forest) {
   if (typeof(forest) != "list") {
     stop("'forest' is not of the correct type")
@@ -8,6 +9,7 @@ checkForest <- function(forest) {
   }
 }
 
+# check training and test covariate arguments for problems
 checkXtrainXtest <- function(X.train, X.test) {
   if (length(dim(X.train)) != 2) {
     stop("'X.train' must be a matrix or data.frame of dimension 2")
@@ -18,6 +20,7 @@ checkXtrainXtest <- function(X.train, X.test) {
   }
 }
 
+# check training response argument for problems
 checkYtrain <- function(forest, Y.train, n.train) {
   if ("ranger" %in% class(forest)) {
     if (is.null(Y.train)) {
@@ -28,6 +31,7 @@ checkYtrain <- function(forest, Y.train, n.train) {
   }
 }
 
+# check type-I error rate argument for problems
 checkAlpha <- function(alpha) {
   if (typeof(alpha) != "double") {
     stop("'alpha' must be of type double")
@@ -36,12 +40,7 @@ checkAlpha <- function(alpha) {
   }
 }
 
-checkConservative <- function(conservative) {
-  if (typeof(conservative) != "logical" | is.na(conservative)) {
-    stop("'conservative' must be TRUE or FALSE")
-  }
-}
-
+# check index argument in perror and qerror functions for problems
 checkxs <- function(xs, n.test) {
   if (max(xs) > n.test | min(xs) < 1) {
     stop("Test indices are out of bounds")
@@ -50,12 +49,14 @@ checkxs <- function(xs, n.test) {
   }
 }
 
-checkqs <- function(q) {
-  if (max(q) > 1 | min(q) < 0) {
+# check probability argument in qerror for problems
+checkps <- function(p) {
+  if (max(p) > 1 | min(p) < 0) {
     stop("Probabilities must be between 0 and 1")
   }
 }
 
+# check core argument for problems
 checkcores <- function(n.cores) {
   if (is.null(n.cores)) {
     stop("Number of cores must be specified")

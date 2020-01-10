@@ -29,7 +29,7 @@ to train \code{forest}. Required if \code{forest} was created using
 Possible options are conditional mean squared prediction errors (\code{"mspe"}),
 conditional biases (\code{"bias"}), conditional prediction intervals (\code{"interval"}),
 conditional error distribution functions (\code{"p.error"}), and
-conditional quantile functions (\code{"q.error"}).}
+conditional error quantile functions (\code{"q.error"}).}
 
 \item{alpha}{The type-I error rate desired for the conditional prediction
 intervals; required if \code{"interval"} is included in \code{what}.}
@@ -41,7 +41,7 @@ A \code{data.frame} with one or more of the following columns, as described
   in the details section:
 
   \item{pred}{The random forest predictions of the test observations}
-  \item{mspe}{The estimated conditional mean square prediction errors of
+  \item{mspe}{The estimated conditional mean squared prediction errors of
   the random forest predictions}
   \item{bias}{The estimated conditional biases of the random forest
   predictions}
@@ -85,12 +85,11 @@ upper bounds of a conditional prediction interval for each test prediction.
 If \code{"p.error"} or \code{"q.error"} is included in \code{what}, then a
 list will be returned as output. The first element of the list, named
 \code{"estimates"}, is the \code{data.frame} described in the above paragraph. The
-other one or two elements of the list are the estimated CDFs (\code{perror})
-and/or the estimated quantile functions (\code{qerror}) of the conditional
-error distributions associated with the test predictions.
+other one or two elements of the list are the estimated cumulative distribution
+functions (\code{perror}) and/or the estimated quantile functions (\code{qerror})
+of the conditional error distributions associated with the test predictions.
 }
 \examples{
-\donttest{
 # load data
 data(airquality)
 
@@ -109,32 +108,30 @@ Xtest <- airquality[-train.ind, -response.col]
 Ytest <- airquality[-train.ind, response.col]
 
 # fit random forest to the training data
-rf <- randomForest(Xtrain, Ytrain, nodesize = 5,
-                   ntree = 500, keep.inbag = TRUE)
+rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 5,
+                                 ntree = 500,
+                                 keep.inbag = TRUE)
 
 # estimate conditional mean squared prediction errors,
 # biases, prediction intervals, and error distribution
 # functions for the test observations
-test.errors <- quantForestError(rf, Xtrain, Xtest,
-                                alpha = 0.05)
+output <- quantForestError(rf, Xtrain, Xtest,
+                           alpha = 0.05)
 
 # do the same as above but in parallel
-test.errors <- quantForestError(rf, Xtrain, Xtest,
-                                alpha = 0.05,
-                                n.cores = 4)
+output <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05,
+                           n.cores = 2)
 
 # estimate just the conditional mean squared prediction errors
 # and prediction intervals for the test observations
-test.errors <- quantForestError(rf, Xtrain, Xtest,
-                                what = c("mspe", "interval"),
-                                alpha = 0.05)
+output <- quantForestError(rf, Xtrain, Xtest,
+                           what = c("mspe", "interval"),
+                           alpha = 0.05)
 
 # estimate just the conditional error distribution
 # functions for the test observations
-test.errors <- quantForestError(rf, Xtrain, Xtest,
-                                what = c("p.error", "q.error"))
-}
-
+output <- quantForestError(rf, Xtrain, Xtest,
+                           what = c("p.error", "q.error"))
 }
 \seealso{
 \code{\link{perror}}, \code{\link{qerror}}

@@ -7,6 +7,8 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' conditional prediction intervals, and conditional error distributions of
 #' random forest predictions.
 #'
+#' This function accepts regression random forests built using the \code{randomForest},
+#' \code{ranger}, \code{randomForestSRC}, and \code{quantregForest} packages.
 #' When training the random forest using \code{randomForest}, \code{ranger}, or
 #' \code{quantregForest}, \code{keep.inbag} must be set to \code{TRUE}. When
 #' training the random forest using \code{randomForestSRC}, \code{membership}
@@ -130,15 +132,15 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' @export
 quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("mspe", "bias", "interval", "p.error", "q.error"), alpha = 0.05, n.cores = 1) {
 
-  # check forest, X.train, X.test, Y.train, and n.cores arguments for issues
+  # check forest, X.train, X.test arguments for issues
   checkForest(forest)
   checkXtrainXtest(X.train, X.test)
-  checkYtrain(forest, Y.train, n.train)
-  checkcores(n.cores)
-
   # get number of training and test observations
   n.train <- nrow(X.train)
   n.test <- nrow(X.test)
+  # check Y.train and n.cores arguments for issues
+  checkYtrain(forest, Y.train, n.train)
+  checkcores(n.cores)
 
   # if the forest is from the quantregForest package
   if ("quantregForest" %in% class(forest)) {

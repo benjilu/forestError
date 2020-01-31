@@ -64,6 +64,8 @@ conditional prediction intervals, and conditional error distributions of
 random forest predictions.
 }
 \details{
+This function accepts regression random forests built using the \code{randomForest},
+\code{ranger}, \code{randomForestSRC}, and \code{quantregForest} packages.
 When training the random forest using \code{randomForest}, \code{ranger}, or
 \code{quantregForest}, \code{keep.inbag} must be set to \code{TRUE}. When
 training the random forest using \code{randomForestSRC}, \code{membership}

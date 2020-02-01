@@ -2,7 +2,6 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
 ### Overview
-Update 1/14/2020: We are now on CRAN!
 
 The `forestError` package estimates conditional mean squared prediction errors, conditional biases, conditional prediction intervals, and conditional error distributions for random forest predictions using the plug-in method introduced in Lu and Hardin (2019+). These estimates are conditional on the test observations' predictor values, accounting for possible response heterogeneity, random forest prediction bias, and random forest prediction variability across the predictor space.
 
@@ -29,7 +28,7 @@ devtools::install_github(repo = "benjilu/forestError")
 ```  
 
 ### Instructions
-See `documentation.pdf` for detailed information on how to use this package. A portion of the example given in the documentation is reproduced below for convenience.
+See the documentation for detailed information on how to use this package. A portion of the example given in the documentation is reproduced below for convenience.
 
 ```{r}
 # load data

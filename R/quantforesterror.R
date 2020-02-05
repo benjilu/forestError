@@ -189,8 +189,8 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
   } else if ("ranger" %in% class(forest)) {
 
     # get terminal nodes of all observations
-    train.terminal.nodes <- predict(forest, X.train, type = "terminalNodes")$predictions
-    test.terminal.nodes <- predict(forest, X.test, type = "terminalNodes")$predictions
+    train.terminal.nodes <- predict(forest, X.train, num.threads = n.cores, type = "terminalNodes")$predictions
+    test.terminal.nodes <- predict(forest, X.test, num.threads = n.cores, type = "terminalNodes")$predictions
 
     # get number of times each training observation appears in each tree
     bag.count <- matrix(unlist(forest$inbag.counts, use.names = FALSE), ncol = forest$num.trees, byrow = FALSE)

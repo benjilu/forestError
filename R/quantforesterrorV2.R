@@ -247,11 +247,12 @@ quantForestErrorV2 <- function(forest, X.train, X.test, Y.train = NULL,
     neworder = unique(c(ord1, ord2, ord3))
   )
 
-  if (return(precomputed_train_nodes)) {
+  if (return_train_nodes) {
     return(list(oob_error_stats = oob_error_stats,
-                precomputed_train_nodes = long_train_nodes))
+                train_nodes = long_train_nodes))
   } else {
     return(list(oob_error_stats = oob_error_stats,
-                precomputed_train_nodes = NULL))
+                train_nodes = NULL))
   }
 }
+

@@ -35,7 +35,7 @@ checkYtrain <- function(forest, Y.train, n.train) {
 checkAlpha <- function(alpha) {
   if (typeof(alpha) != "double") {
     stop("'alpha' must be of type double")
-  } else if (alpha <= 0 | alpha >= 1) {
+  } else if (any(alpha <= 0 | alpha >= 1)) {
     stop("'alpha' must be in (0, 1)")
   }
 }

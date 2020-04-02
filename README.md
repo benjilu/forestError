@@ -3,7 +3,7 @@
 
 ### Version 0.2.0 Update
 
-Thanks to John Sheffield ([Github Profile](https://github.com/sheffe)) for his extremely helpful improvements to the computational performance of this package. (See the [Issue Tracker](https://github.com/benjilu/forestError/issues/2) for details.) These changes, which substantially reduce the runtime and memory load of this package's `quantForestError`, `perror`, and `qerror` functions, have been implemented in Version 0.2.0, available for installation through this repository and pending approval at CRAN.
+Thanks to John Sheffield ([Github Profile](https://github.com/sheffe)) for his extremely helpful improvements to the computational performance of this package. (See the [Issue Tracker](https://github.com/benjilu/forestError/issues/2) for details.) These changes, which substantially reduce the runtime and memory load of this package's `quantForestError`, `perror`, and `qerror` functions, have been implemented in Version 0.2.0, available for installation through this repository and approved at CRAN.
 
 Version 0.2.0 also now allows the user to generate conditional prediction intervals with different type-I error rates in a single call of the `quantForestError` function.
 

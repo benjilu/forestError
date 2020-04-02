@@ -1,6 +1,14 @@
 # forestError: A Unified Framework for Random Forest Prediction Error Estimation
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
+### Version 0.2.0 Update
+
+Thanks to John Sheffield ([Github Profile](https://github.com/sheffe)) for his extremely helpful improvements to the computational performance of this package. (See the [Issue Tracker](https://github.com/benjilu/forestError/issues/2) for details.) These changes, which substantially reduce the runtime and memory load of this package's `quantForestError`, `perror`, and `qerror` functions, have been implemented in Version 0.2.0, available for installation through this repository and pending approval at CRAN.
+
+Version 0.2.0 also now allows the user to generate conditional prediction intervals with different type-I error rates in a single call of the `quantForestError` function.
+
+In the future, we hope to implement a stochastic version of the `quantForestError` function, in which the parameters are estimated by random subsets of the training sample and/or the trees of the random forest.
+
 ### Overview
 
 The `forestError` package estimates conditional mean squared prediction errors, conditional biases, conditional prediction intervals, and conditional error distributions for random forest predictions using the plug-in method introduced in Lu and Hardin (2019+). These estimates are conditional on the test observations' predictor values, accounting for possible response heterogeneity, random forest prediction bias, and random forest prediction variability across the predictor space.
@@ -56,10 +64,6 @@ rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 5,
 # biases, conditional prediction intervals, and conditional error
 # distribution functions for the test observations
 output <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05)
-
-# do the same as above but this time in parallel
-output <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05,
-                           n.cores = 2)
 ```
 
 ### License

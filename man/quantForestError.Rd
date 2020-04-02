@@ -5,9 +5,15 @@
 \alias{forestError}
 \title{Quantify random forest prediction error}
 \usage{
-quantForestError(forest, X.train, X.test, Y.train = NULL,
+quantForestError(
+  forest,
+  X.train,
+  X.test,
+  Y.train = NULL,
   what = c("mspe", "bias", "interval", "p.error", "q.error"),
-  alpha = 0.05, n.cores = 1)
+  alpha = 0.05,
+  n.cores = 1
+)
 }
 \arguments{
 \item{forest}{The random forest object being used for prediction.}
@@ -31,10 +37,10 @@ conditional biases (\code{"bias"}), conditional prediction intervals (\code{"int
 conditional error distribution functions (\code{"p.error"}), and
 conditional error quantile functions (\code{"q.error"}).}
 
-\item{alpha}{The type-I error rate desired for the conditional prediction
+\item{alpha}{A vector of type-I error rates desired for the conditional prediction
 intervals; required if \code{"interval"} is included in \code{what}.}
 
-\item{n.cores}{Number of cores to use (for parallel computation).}
+\item{n.cores}{Number of cores to use (for parallel computation in \code{ranger}).}
 }
 \value{
 A \code{data.frame} with one or more of the following columns, as described
@@ -45,10 +51,10 @@ A \code{data.frame} with one or more of the following columns, as described
   the random forest predictions}
   \item{bias}{The estimated conditional biases of the random forest
   predictions}
-  \item{lower}{The estimated lower bounds of the conditional prediction
-  intervals for the test observations}
-  \item{upper}{The estimated upper bounds of the conditional prediction
-  intervals for the test observations}
+  \item{lower_alpha}{The estimated lower bounds of the conditional alpha-level
+  prediction intervals for the test observations}
+  \item{upper_alpha}{The estimated upper bounds of the conditional alpha-level
+  prediction intervals for the test observations}
 
   In addition, one or both of the following functions, as described in the
   details section:
@@ -71,8 +77,8 @@ When training the random forest using \code{randomForest}, \code{ranger}, or
 training the random forest using \code{randomForestSRC}, \code{membership}
 must be set to \code{TRUE}.
 
-The computation can be parallelized by setting the value of \code{n.cores} to
-be greater than 1.
+The predictions computed by \code{ranger} can be parallelized by setting the
+value of \code{n.cores} to be greater than 1.
 
 The random forest predictions are always returned as a \code{data.frame}. Additional
 columns are included in the \code{data.frame} depending on the user's selections in
@@ -81,8 +87,8 @@ will add an additional column with the conditional mean squared prediction
 error of each test prediction to the \code{data.frame}; including \code{"bias"} in
 \code{what} will add an additional column with the conditional bias of each test
 prediction to the \code{data.frame}; and including \code{"interval"} in \code{what}
-will add to the \code{data.frame} two additional columns with the lower and
-upper bounds of a conditional prediction interval for each test prediction.
+will add to the \code{data.frame} additional columns with the lower and
+upper bounds of conditional prediction intervals for each test prediction.
 
 If \code{"p.error"} or \code{"q.error"} is included in \code{what}, then a
 list will be returned as output. The first element of the list, named
@@ -119,10 +125,6 @@ rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 5,
 # functions for the test observations
 output <- quantForestError(rf, Xtrain, Xtest,
                            alpha = 0.05)
-
-# do the same as above but in parallel
-output <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05,
-                           n.cores = 2)
 
 # estimate just the conditional mean squared prediction errors
 # and prediction intervals for the test observations

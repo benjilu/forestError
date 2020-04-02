@@ -1,9 +1,9 @@
 ## Submission
-This is an updated version of an existing package to fix an important bug.
+This is an updated version of an existing package to improve performance.
 
 ## Changes from previous submission
-Changed the ordering of the argument checks to avoid an error that arose
-from attempting to check a variable that had not yet been defined.
+Reduced runtime and memory usage by creating edgelists with the data.table
+rather than computing the entire matrix of weights with Rcpp.
 
 ## Test environments
 * local macOS R 3.6.2

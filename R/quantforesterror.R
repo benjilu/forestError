@@ -1,5 +1,8 @@
 # avoid check note
-if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.errors", "cumsums", "unit"))}
+if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "tree", "terminal_node",
+                                                     ".", "oob_error", "rowid_test", "pred",
+                                                     "node_errs", "pred", "all_errs", "..col_names",
+                                                     "..p_col_names", "..q_col_names"))}
 
 #' Quantify random forest prediction error
 #'
@@ -14,8 +17,8 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' training the random forest using \code{randomForestSRC}, \code{membership}
 #' must be set to \code{TRUE}.
 #'
-#' The computation can be parallelized by setting the value of \code{n.cores} to
-#' be greater than 1.
+#' The predictions computed by \code{ranger} can be parallelized by setting the
+#' value of \code{n.cores} to be greater than 1.
 #'
 #' The random forest predictions are always returned as a \code{data.frame}. Additional
 #' columns are included in the \code{data.frame} depending on the user's selections in
@@ -24,8 +27,8 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' error of each test prediction to the \code{data.frame}; including \code{"bias"} in
 #' \code{what} will add an additional column with the conditional bias of each test
 #' prediction to the \code{data.frame}; and including \code{"interval"} in \code{what}
-#' will add to the \code{data.frame} two additional columns with the lower and
-#' upper bounds of a conditional prediction interval for each test prediction.
+#' will add to the \code{data.frame} additional columns with the lower and
+#' upper bounds of conditional prediction intervals for each test prediction.
 #'
 #' If \code{"p.error"} or \code{"q.error"} is included in \code{what}, then a
 #' list will be returned as output. The first element of the list, named
@@ -50,9 +53,9 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #'   conditional biases (\code{"bias"}), conditional prediction intervals (\code{"interval"}),
 #'   conditional error distribution functions (\code{"p.error"}), and
 #'   conditional error quantile functions (\code{"q.error"}).
-#' @param alpha The type-I error rate desired for the conditional prediction
+#' @param alpha A vector of type-I error rates desired for the conditional prediction
 #'   intervals; required if \code{"interval"} is included in \code{what}.
-#' @param n.cores Number of cores to use (for parallel computation).
+#' @param n.cores Number of cores to use (for parallel computation in \code{ranger}).
 #'
 #' @return A \code{data.frame} with one or more of the following columns, as described
 #'   in the details section:
@@ -62,10 +65,10 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #'   the random forest predictions}
 #'   \item{bias}{The estimated conditional biases of the random forest
 #'   predictions}
-#'   \item{lower}{The estimated lower bounds of the conditional prediction
-#'   intervals for the test observations}
-#'   \item{upper}{The estimated upper bounds of the conditional prediction
-#'   intervals for the test observations}
+#'   \item{lower_alpha}{The estimated lower bounds of the conditional alpha-level
+#'   prediction intervals for the test observations}
+#'   \item{upper_alpha}{The estimated upper bounds of the conditional alpha-level
+#'   prediction intervals for the test observations}
 #'
 #'   In addition, one or both of the following functions, as described in the
 #'   details section:
@@ -108,10 +111,6 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #' output <- quantForestError(rf, Xtrain, Xtest,
 #'                            alpha = 0.05)
 #'
-#' # do the same as above but in parallel
-#' output <- quantForestError(rf, Xtrain, Xtest, alpha = 0.05,
-#'                            n.cores = 2)
-#'
 #' # estimate just the conditional mean squared prediction errors
 #' # and prediction intervals for the test observations
 #' output <- quantForestError(rf, Xtrain, Xtest,
@@ -124,11 +123,9 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "ordered.oob.er
 #'                            what = c("p.error", "q.error"))
 #' @aliases forestError
 #'
-#' @useDynLib forestError
-#' @importFrom Rcpp sourceCpp
 #' @importFrom stats predict
-#' @importFrom foreach %dopar% foreach
-#' @importFrom doParallel registerDoParallel
+#' @import data.table
+#' @importFrom purrr map_dbl
 #' @export
 quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("mspe", "bias", "interval", "p.error", "q.error"), alpha = 0.05, n.cores = 1) {
 
@@ -165,7 +162,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
     attributes(test.pred.list) <- NULL
     test.preds <- test.pred.list
 
-  # else if the forest is from the randomForest package
+    # else if the forest is from the randomForest package
   } else if ("randomForest" %in% class(forest)) {
 
     # get test predictions
@@ -185,7 +182,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
     attributes(test.pred.list) <- NULL
     test.preds <- test.pred.list
 
-  # else, if the forest is from the ranger package
+    # else, if the forest is from the ranger package
   } else if ("ranger" %in% class(forest)) {
 
     # get terminal nodes of all observations
@@ -201,7 +198,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
     # get test observation predictions
     test.preds <- predict(forest, X.test)$predictions
 
-  # else, if the forset is from the randomForestSRC package
+    # else, if the forset is from the randomForestSRC package
   } else if ("rfsrc" %in% class(forest)) {
 
     # get test predictions
@@ -221,127 +218,40 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
     test.preds <- test.pred.list$predicted
   }
 
-  # get the terminal nodes of the training observations in the trees in which they are OOB
-  # (for all other trees, set the terminal node to be 0)
-  train.oob.terminal.nodes <- train.terminal.nodes * as.numeric(bag.count == 0)
+  # reshape test.terminal.nodes to be a long data.table and
+  # add unique IDs and predicted values
+  long_test_nodes <- data.table::melt(
+    data.table::as.data.table(test.terminal.nodes)[, `:=`(rowid_test = .I, pred = test.preds)],
+    id.vars = c("rowid_test", "pred"),
+    measure.vars = 1:ncol(test.terminal.nodes),
+    variable.name = "tree",
+    variable.factor = FALSE,
+    value.name = "terminal_node")
 
-  ##############################################################################
-  ### run C++ function to compute out-of-bag cohabitants either in parallel or not
-  ##############################################################################
+  # set key columns for faster indexing
+  data.table::setkey(long_test_nodes, tree, terminal_node)
 
-  # if user specifies a number of cores for parallel processing
-  if (n.cores > 1) {
+  # get the terminal nodes of the training observations in the trees in which
+  # they are OOB (for all other trees, set the terminal node to be NA)
+  train.terminal.nodes[bag.count != 0] <- NA
 
-    # if the number of cores is larger than both n.train and n.test, revise it down
-    if (n.cores > n.train & n.cores > n.test) {
-      n.cores <- max(n.train, n.test)
-    }
+  # reshape train.terminal.nodes to be a long data.table and include OOB
+  # prediction errors as a column
+  long_train_nodes <- data.table::as.data.table(train.terminal.nodes)
+  long_train_nodes[, `:=`(oob_error = oob.errors)]
+  long_train_nodes <- data.table::melt(
+    long_train_nodes,
+    id.vars = c("oob_error"),
+    measure.vars = 1:ncol(train.terminal.nodes),
+    variable.name = "tree",
+    value.name = "terminal_node",
+    variable.factor = FALSE,
+    na.rm = TRUE)
 
-    # if the number of cores is larger than only one set, parallelize over the other
-    if (n.cores > n.train & n.cores <= n.test) {
-
-      # construct cluster
-      cl <- parallel::makeCluster(n.cores)
-
-      # register parallel backend
-      doParallel::registerDoParallel(cl)
-
-      # count out-of-bag cohabitants in parallel over the test units
-      oob.weights <-
-        foreach::foreach(unit = 1:n.test,
-                         .combine = "rbind",
-                         .packages = "forestError") %dopar% {
-                           countOOBCohabitantsTestPar(train.oob.terminal.nodes, test.terminal.nodes[unit, ], n.train)
-                         }
-
-      # shut down the cluster.
-      parallel::stopCluster(cl)
-
-      # rename rows
-      rownames(oob.weights) <- NULL
-
-    } else if (n.cores <= n.train & n.cores > n.test) {
-
-      # construct cluster
-      cl <- parallel::makeCluster(n.cores)
-
-      # register parallel backend
-      doParallel::registerDoParallel(cl)
-
-      # count out-of-bag cohabitants in parallel over the training units
-      oob.weights <-
-        foreach::foreach(unit = 1:n.train,
-                         .combine = "cbind",
-                         .packages = "forestError") %dopar% {
-                           countOOBCohabitantsTrainPar(train.oob.terminal.nodes[unit, ], test.terminal.nodes, n.test)
-                         }
-
-      # shut down the cluster.
-      parallel::stopCluster(cl)
-
-      # rename columns
-      colnames(oob.weights) <- NULL
-
-    # else, check the relative sizes of the training and test sets
-    } else if (n.train > 10 * n.test) {
-
-      # construct cluster
-      cl <- parallel::makeCluster(n.cores)
-
-      # register parallel backend
-      doParallel::registerDoParallel(cl)
-
-      # count out-of-bag cohabitants in parallel over the test units
-      oob.weights <-
-        foreach::foreach(unit = 1:n.test,
-                         .combine = "rbind",
-                         .packages = "forestError") %dopar% {
-                           countOOBCohabitantsTestPar(train.oob.terminal.nodes, test.terminal.nodes[unit, ], n.train)
-                         }
-
-      # shut down the cluster.
-      parallel::stopCluster(cl)
-
-      # rename rows
-      rownames(oob.weights) <- NULL
-
-    } else {
-
-      # construct cluster
-      cl <- parallel::makeCluster(n.cores)
-
-      # register parallel backend
-      doParallel::registerDoParallel(cl)
-
-      # count out-of-bag cohabitants in parallel over the training units
-      oob.weights <-
-        foreach::foreach(unit = 1:n.train,
-                         .combine = "cbind",
-                         .packages = "forestError") %dopar% {
-                           countOOBCohabitantsTrainPar(train.oob.terminal.nodes[unit, ], test.terminal.nodes, n.test)
-                         }
-
-      # shut down the cluster.
-      parallel::stopCluster(cl)
-
-      # rename columns
-      colnames(oob.weights) <- NULL
-    }
-
-    # else, count out-of-bag cohabitants without parallel computation
-  } else {
-
-    oob.weights <- countOOBCohabitants(train.oob.terminal.nodes, test.terminal.nodes, n.train, n.test)
-  }
-
-  ##############################################################################
-  ### end C++ section
-  ##############################################################################
-
-  # for each test observation, convert the number of times each training observation
-  # is an OOB cohabitant to the proportion of times each training observation is an
-  # OOB cohabitant
-  oob.weights <- oob.weights / rowSums(oob.weights)
+  # collapse the long data.table by unique tree/node
+  long_train_nodes <- long_train_nodes[,
+    .(node_errs = list(oob_error)),
+    keyby = c("tree", "terminal_node")]
 
   # check what user wants to produce
   mspewhat <- "mspe" %in% what
@@ -350,193 +260,175 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
   pwhat <- "p.error" %in% what
   qwhat <- "q.error" %in% what
 
-  # calculate the number of columns the output dataframe will have
-  output.cols <- 1 + as.numeric(mspewhat) + as.numeric(biaswhat) + (2 * as.numeric(intervalwhat))
-
-  # current column tracker
-  current.col <- 1
-
-  # initialize output dataframe
-  output.df <- data.frame(matrix(rep(NA, n.test * output.cols), ncol = output.cols))
-
-  # add test predictions to output dataframe
-  output.df[, 1] <- test.preds
-
-  # increment column tracker
-  current.col <- current.col + 1
+  # set columns to return
+  col_names <- c("pred", "mspe", "bias")[c(TRUE, mspewhat, biaswhat)]
 
   # initialize overall output
   output <- NULL
 
-  # if user requests mean squared prediction error estimates
-  if (mspewhat) {
+  # if the user does not want intervals, p.error, or q.error
+  if (!intervalwhat & !pwhat & !qwhat) {
 
-    # get the MSPE2 for each test observation
-    mspe2s <- as.matrix(oob.weights) %*% (oob.errors ^ 2)
-
-    # add to output dataframe
-    output.df[, current.col] <- as.vector(mspe2s)
-
-    # increment column tracker
-    current.col <- current.col + 1
-  }
-
-  # if user requests bias estimates
-  if (biaswhat) {
-
-    # get the bias for each test observation
-    biases <- as.matrix(oob.weights) %*% oob.errors
-
-    # add to output dataframe
-    output.df[, current.col] <- as.vector(biases)
-
-    # increment column tracker
-    current.col <- current.col + 1
-  }
-
-  # if the user requests anything else
-  if (any(c(intervalwhat, pwhat, qwhat))) {
-
-    # sort the OOB errors of the training observations
-    ordered.oob.errors <- sort(oob.errors, index.return = TRUE)
-
-    # sort the OOB weight assigned to each OOB error according to the value of
-    # the OOB error, in ascending order
-    ordered.oob.weights <- oob.weights[, ordered.oob.errors$ix]
-
-    # get the cumulative sum of weights
-    cumsums <- t(apply(ordered.oob.weights, 1, cumsum))
-
-    # if the user requests regular prediction intervals
-    if (intervalwhat) {
-
-      # check the alpha argument for issues
-      checkAlpha(alpha)
-
-      # get the index of the training observation for which the cumulative sum of the OOB weights
-      # initially exceeds alpha / 2
-      lower.ind <- apply(cumsums, 1, FUN = function(x) max(suppressWarnings(min(which(x >= alpha / 2))), 1))
-      # get the index of the training observation for which the cumulative sum of the OOB weights
-      # initially exceeds 1 - alpha / 2
-      upper.ind <- apply(cumsums, 1, FUN = function(x) min(which(x >= 1 - (alpha / 2))))
-
-      # get the corresponding OOB errors and use them to construct prediction intervals
-      # for the test observations
-      lower.bounds <- test.preds + ordered.oob.errors$x[lower.ind]
-      upper.bounds <- test.preds + ordered.oob.errors$x[upper.ind]
-
-      # add to output dataframe
-      output.df[, c(current.col, current.col + 1)] <- data.frame(lower.bounds, upper.bounds)
-
-      # increment column tracker
-      current.col <- current.col + 2
+    # produce whichever of mspe and bias the user wants
+    if (mspewhat & !biaswhat) {
+      # join the train and test edgelists by tree/node and compute relevant summary
+      # statistics via chaining
+      oob_error_stats <-
+        long_train_nodes[long_test_nodes,
+                         .(tree, terminal_node, rowid_test, pred, node_errs)][,
+                                                                              .(mspe = mean(unlist(node_errs) ^ 2)),
+                                                                              keyby = c("rowid_test", "pred")]
+    } else if (!mspewhat & biaswhat) {
+      # join the train and test edgelists by tree/node and compute relevant summary
+      # statistics via chaining
+      oob_error_stats <-
+        long_train_nodes[long_test_nodes,
+                         .(tree, terminal_node, rowid_test, pred, node_errs)][,
+                                                                              .(bias = mean(unlist(node_errs))),
+                                                                              keyby = c("rowid_test", "pred")]
+    } else {
+      # join the train and test edgelists by tree/node and compute relevant summary
+      # statistics via chaining
+      oob_error_stats <-
+        long_train_nodes[long_test_nodes,
+                         .(tree, terminal_node, rowid_test, pred, node_errs)][,
+                                                                              .(mspe = mean(unlist(node_errs) ^ 2),
+                                                                                bias = mean(unlist(node_errs))),
+                                                                              keyby = c("rowid_test", "pred")]
     }
 
-    # if the user requests the estimated CDF
+  # else, do the same as above but keep the full list of OOB cohabitant prediction errors
+  } else {
+
+    # produce whichever of mspe and bias the user wants
+    if (mspewhat & !biaswhat) {
+      # join the train and test edgelists by tree/node and compute relevant summary
+      # statistics via chaining
+      oob_error_stats <-
+        long_train_nodes[long_test_nodes,
+                         .(tree, terminal_node, rowid_test, pred, node_errs)][,
+                                                                              .(mspe = mean(unlist(node_errs) ^ 2),
+                                                                                all_errs = list(sort(unlist(node_errs)))),
+                                                                              keyby = c("rowid_test", "pred")]
+    } else if (!mspewhat & biaswhat) {
+      # join the train and test edgelists by tree/node and compute relevant summary
+      # statistics via chaining
+      oob_error_stats <-
+        long_train_nodes[long_test_nodes,
+                         .(tree, terminal_node, rowid_test, pred, node_errs)][,
+                                                                              .(bias = mean(unlist(node_errs)),
+                                                                                all_errs = list(sort(unlist(node_errs)))),
+                                                                              keyby = c("rowid_test", "pred")]
+    } else if (mspewhat & biaswhat) {
+      # join the train and test edgelists by tree/node and compute relevant summary
+      # statistics via chaining
+      oob_error_stats <-
+        long_train_nodes[long_test_nodes,
+                         .(tree, terminal_node, rowid_test, pred, node_errs)][,
+                                                                              .(mspe = mean(unlist(node_errs) ^ 2),
+                                                                                bias = mean(unlist(node_errs)),
+                                                                                all_errs = list(sort(unlist(node_errs)))),
+                                                                              keyby = c("rowid_test", "pred")]
+    } else {
+      # join the train and test edgelists by tree/node and compute relevant summary
+      # statistics via chaining
+      oob_error_stats <-
+        long_train_nodes[long_test_nodes,
+                         .(tree, terminal_node, rowid_test, pred, node_errs)][,
+                                                                              .(all_errs = list(sort(unlist(node_errs)))),
+                                                                              keyby = c("rowid_test", "pred")]
+    }
+  }
+
+  # if the user requests prediction intervals
+  if (intervalwhat) {
+
+    # check the alpha argument for issues
+    checkAlpha(alpha)
+
+    # format prediction interval output
+    percentiles <- sort(c(alpha / 2, 1 - (alpha / 2)))
+    interval_col_names <- paste0(rep(c("lower_", "upper_"), each = length(alpha)),
+                                 c(alpha, rev(alpha)))
+    col_names <- c(col_names, interval_col_names)
+
+    # compute prediction intervals
+    oob_error_stats[, (interval_col_names) := lapply(percentiles, FUN = function(p) {
+      pred + purrr::map_dbl(all_errs, ~.x[ceiling(length(.x) * p)])})]
+  }
+
+  # extract summary statistics requested as data.frame
+  output_df <- data.table::setDF(oob_error_stats[, ..col_names])
+
+  # if the user requests p.error
+  if (pwhat) {
+
+    # remove summary statistics from oob_error_stats
+    oob_error_stats <- oob_error_stats[, .(all_errs)]
+
+    # define the estimated CDF function
+    perror <- function(q, xs = 1:n.test) {
+
+      # check xs argument for issues
+      checkxs(xs, n.test)
+
+      # format output
+      p_col_names <- paste0("p_", q)
+
+      # compute CDF
+      oob_error_stats[xs, (p_col_names) := lapply(q, FUN = function(que) {
+        purrr::map_dbl(all_errs, ~mean(.x <= que))})]
+
+      # format and return output
+      to.return <- data.table::setDF(oob_error_stats[xs, ..p_col_names])
+      row.names(to.return) <- xs
+      return(to.return)
+      }
+
+    # add to output
+    output <- list(output_df, perror)
+    names(output) <- c("estimates", "perror")
+    }
+
+  # if the user requests q.error
+  if (qwhat) {
+
+    # remove summary statistics from oob_error_stats
+    oob_error_stats <- oob_error_stats[, .(all_errs)]
+
+    # define the estimated quantile function
+    qerror <- function(p, xs = 1:n.test) {
+
+      # check p and xs arguments for issus
+      checkps(p)
+      checkxs(xs, n.test)
+
+      # format output
+      q_col_names <- paste0("q_", p)
+
+      # compute quantiles
+      oob_error_stats[xs, (q_col_names) := lapply(p, FUN = function(pe) {
+        purrr::map_dbl(all_errs, ~.x[ceiling(length(.x) * pe)])})]
+
+      # format and return output
+      to.return <- data.table::setDF(oob_error_stats[xs, ..q_col_names])
+      row.names(to.return) <- xs
+      return(to.return)
+    }
+
+    # add quantile function to output
     if (pwhat) {
-
-      # define the estimated CDF function
-      perror <- function(q, xs = 1:n.test) {
-
-        # check xs argument for issus
-        checkxs(xs, n.test)
-
-        # define the function for a single quantile
-        singleperror <- function(singleq, exes) {
-
-          # get the index of the maximum error that is less than or equal to the stated quantile
-          max.error.ind <- suppressWarnings(max(which(ordered.oob.errors$x <= singleq)))
-
-          # if the index is at least 1
-          if (max.error.ind != -Inf) {
-
-            # get the cumulative weights up to that index
-            prob <- apply(matrix(cumsums[exes, ], nrow = length(exes)), 1, FUN = function(x) x[max.error.ind])
-
-          # else
-          } else {
-
-            # the probability of being less than the inputted value is zero
-            prob <- rep(0, length(exes))
-          }
-
-          # return the probability
-          return(prob)
-        }
-
-        # if more than one quantile is provided, vectorize the evaluation of
-        # singleperror over the quantiles
-        if (length(q) > 1) {
-          to.return <- data.frame(sapply(q, FUN = function(x) singleperror(x, xs)))
-          if (length(xs) == 1) {
-            to.return <- unlist(to.return)
-            names(to.return) <- as.character(q)
-          } else {
-            row.names(to.return) <- xs
-            names(to.return) <- q
-          }
-          return(to.return)
-        # else, evaluate singleperror on the single quantile provided
-        } else {
-          return(singleperror(q, xs))
-        }
-      }
-
-      # add to output
-      output <- list(output.df, perror)
-      names(output) <- c("estimates", "perror")
-    }
-
-    # if the user requests quantile function
-    if (qwhat) {
-
-      # define quantile function
-      qerror <- function(p, xs = 1:n.test) {
-
-        # check p and xs arguments for issus
-        checkps(p)
-        checkxs(xs, n.test)
-
-        # define quantile function evaluated for single probability
-        singleqerror <- function(singlep, exes) {
-
-          return(unname(ordered.oob.errors$x[apply(matrix(cumsums[exes, ], nrow = length(exes)), 1, FUN = function(x) min(which(x >= singlep)))]))
-        }
-
-        # if more than one probability is provided, vectorize the evaluation of
-        # singleqerror over the probabilities
-        if (length(p) > 1) {
-          to.return <- data.frame(sapply(p, FUN = function(x) singleqerror(x, xs)))
-          if (length(xs) == 1) {
-            to.return <- unlist(to.return)
-            names(to.return) <- as.character(p)
-          } else {
-            row.names(to.return) <- xs
-            names(to.return) <- p
-          }
-          return(to.return)
-          # else, evaluate singleqerror on the single probability provided
-        } else {
-          return(singleqerror(p, xs))
-        }
-      }
-
-      # add quantile function to output
-      if (pwhat) {
-        output[["qerror"]] <- qerror
-      } else {
-        output <- list(output.df, qerror)
-        names(output) <- c("estimates", "qerror")
-      }
+      output[["qerror"]] <- qerror
+    } else {
+      output <- list(output_df, qerror)
+      names(output) <- c("estimates", "qerror")
     }
   }
 
   # return output
   if (is.null(output)) {
-    names(output.df) <- c("pred", "mspe", "bias", "lower", "upper")[c(TRUE, mspewhat, biaswhat, intervalwhat, intervalwhat)]
-    return(output.df)
+    return(output_df)
   } else {
-    names(output$estimates) <- c("pred", "mspe", "bias", "lower", "upper")[c(TRUE, mspewhat, biaswhat, intervalwhat, intervalwhat)]
     return(output)
   }
 }

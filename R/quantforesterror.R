@@ -284,7 +284,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       oob_error_stats <-
         long_train_nodes[long_test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
-                                                                              .(bias = mean(unlist(node_errs))),
+                                                                              .(bias = -mean(unlist(node_errs))),
                                                                               keyby = c("rowid_test", "pred")]
     } else {
       # join the train and test edgelists by tree/node and compute relevant summary
@@ -293,7 +293,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
         long_train_nodes[long_test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
                                                                               .(mspe = mean(unlist(node_errs) ^ 2),
-                                                                                bias = mean(unlist(node_errs))),
+                                                                                bias = -mean(unlist(node_errs))),
                                                                               keyby = c("rowid_test", "pred")]
     }
 
@@ -316,7 +316,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       oob_error_stats <-
         long_train_nodes[long_test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
-                                                                              .(bias = mean(unlist(node_errs)),
+                                                                              .(bias = -mean(unlist(node_errs)),
                                                                                 all_errs = list(sort(unlist(node_errs)))),
                                                                               keyby = c("rowid_test", "pred")]
     } else if (mspewhat & biaswhat) {
@@ -326,7 +326,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
         long_train_nodes[long_test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
                                                                               .(mspe = mean(unlist(node_errs) ^ 2),
-                                                                                bias = mean(unlist(node_errs)),
+                                                                                bias = -mean(unlist(node_errs)),
                                                                                 all_errs = list(sort(unlist(node_errs)))),
                                                                               keyby = c("rowid_test", "pred")]
     } else {

@@ -4,10 +4,13 @@ citEntry(entry = "Article",
   title = "A Unified Framework for Random Forest Prediction Error Estimation",
   author = personList(as.person("Benjamin Lu"),
                       as.person("Johanna Hardin")),
-  journal = "arXiv preprint arXiv:1912.07435",
-  year = "2019+",
+  journal = "Journal of Machine Learning Research",
+  year = "2021",
+  volume="22",
+  number="8",
+  pages="1--41",
 
   textVersion = paste("Benjamin Lu and Johanna Hardin.",
                       "A Unified Framework for Random Forest Prediction Error Estimation.",
-                      "arXiv preprint arXiv:1912.07435, 2019+.")
+                      "Journal of Machine Learning Research, 22(8):1-41, 2021.")
 )

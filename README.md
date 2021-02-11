@@ -1,17 +1,13 @@
 # forestError: A Unified Framework for Random Forest Prediction Error Estimation
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
-### Version 0.2.0 Update
+### Version 1.0.0 Update
 
-Thanks to John Sheffield ([Github Profile](https://github.com/sheffe)) for his extremely helpful improvements to the computational performance of this package. (See the [Issue Tracker](https://github.com/benjilu/forestError/issues/2) for details.) These changes, which substantially reduce the runtime and memory load of this package's `quantForestError`, `perror`, and `qerror` functions, have been implemented in Version 0.2.0, available for installation through both CRAN and this repository.
-
-Version 0.2.0 also now allows the user to generate conditional prediction intervals with different type-I error rates in a single call of the `quantForestError` function.
-
-In the future, we hope to implement a stochastic version of the `quantForestError` function, in which the parameters are estimated by random subsets of the training sample and/or the trees of the random forest.
+This package has been updated to reflect the conventional sign of bias (mean prediction minus mean response). Previous versions of the package returned negative bias (mean response minus mean prediction). The sign of any algebraic operations involving the bias outputted by this package must therefore be reversed to preserve their intended effect.
 
 ### Overview
 
-The `forestError` package estimates conditional mean squared prediction errors, conditional biases, conditional prediction intervals, and conditional error distributions for random forest predictions using the plug-in method introduced in Lu and Hardin (2019+). These estimates are conditional on the test observations' predictor values, accounting for possible response heterogeneity, random forest prediction bias, and random forest prediction variability across the predictor space.
+The `forestError` package estimates conditional mean squared prediction errors, conditional biases, conditional prediction intervals, and conditional error distributions for random forest predictions using the plug-in method introduced in Lu and Hardin (2021). These estimates are conditional on the test observations' predictor values, accounting for possible response heterogeneity, random forest prediction bias, and random forest prediction variability across the predictor space.
 
 In its current state, the main function in this package accepts regression random forests built using any of the following packages:
 
@@ -73,4 +69,4 @@ See `DESCRIPTION` for information.
 Benjamin Lu and Johanna Hardin
 
 ### References
-* B. Lu and J. Hardin. A unified framework for random forest prediction error estimation. arXiv:1912.07435, 2019+. [[arXiv](https://arxiv.org/abs/1912.07435)]
+* Benjamin Lu and Johanna Hardin. A Unified Framework for Random Forest Prediction Error Estimation. Journal of Machine Learning Research, 22(8):1-41, 2021. [[Link](https://jmlr.org/papers/v22/18-558.html)]

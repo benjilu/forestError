@@ -1,9 +1,8 @@
 ## Submission
-This is an updated version of an existing package to improve performance.
+This is an updated version of an existing package.
 
 ## Changes from previous submission
-Reduced runtime and memory usage by creating edgelists with the data.table
-rather than computing the entire matrix of weights with Rcpp.
+Reversed sign of bias output to reflect conventional definition.
 
 ## Test environments
 * local macOS R 3.6.2

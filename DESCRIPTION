@@ -1,7 +1,7 @@
 Package: forestError
 Type: Package
 Title: A Unified Framework for Random Forest Prediction Error Estimation
-Version: 1.1.0
+Version: 1.1.0.9000
 Author: Benjamin Lu and Johanna Hardin
 Maintainer: Benjamin Lu <b.lu@berkeley.edu>
 Description: Estimates the conditional error distributions of random forest

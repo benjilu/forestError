@@ -1,9 +1,19 @@
 # forestError: A Unified Framework for Random Forest Prediction Error Estimation
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 
-### Version 1.0.0 Update
+### Version 1.1.0 Update
 
-This package has been updated to reflect the conventional sign of bias (mean prediction minus mean response). Previous versions of the package returned negative bias (mean response minus mean prediction). The sign of any algebraic operations involving the bias outputted by this package must therefore be reversed to preserve their intended effect.
+Version 1.1.0 splits two costly steps of the `quantForestError` algorithm into separate components. One step is to identify each training observation's out-of-bag terminal nodes. The other step is to identify each test observation's terminal nodes.
+
+By isolating these steps from the main `quantForestError` function, Version 1.1.0 allows users to more efficiently iterate the algorithm. Users may wish to feed `quantForestError` batches of test observations iteratively if they have streaming data or a large test set that cannot be processed in one go due to memory constraints. In previous versions, doing so would require the algorithm to recompute each training observation's out-of-bag terminal nodes in each iteration. This was redundant and costly. By separating this computation from the rest of the `quantForestError` algorithm, Version 1.1.0 allows the user to perform this computation only once.
+
+As part of this modularization, the `quantForestError` function now has two additional arguments. If set to `TRUE`, `return_train_nodes` will return a `data.table` identifying each training observation's out-of-bag terminal nodes. This `data.table` can then be fed back into `quantForestError` via the argument `train_nodes` to avoid the redundant recomputation.
+
+Version 1.1.0 also exports the function that produces the `data.table` identifying each training observation's out-of-bag terminal nodes. It is called `findOOBErrors`. Assuming the same inputs, `findOOBErrors` will produce the same output that is returned by setting `return_train_nodes` to `TRUE` in the `quantForestError` function.
+
+See the documentation on `quantForestError` and `findOOBErrors` for examples.
+
+These changes should not affect code that relied on Version 1.0.0 of this package, as they consist solely of a newly exported function and two optional arguments to `quantForestError` that by default do nothing new.
 
 ### Overview
 

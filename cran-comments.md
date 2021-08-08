@@ -2,14 +2,15 @@
 This is an updated version of an existing package.
 
 ## Changes from previous submission
-Reversed sign of bias output to reflect conventional definition.
+Modularized the main function's steps by defining them as separate functions,
+one of which is now newly exported.
 
 ## Test environments
-* local macOS R 3.6.2
+* local macOS R 4.1.0
 * win-builder (devel and release)
 
 ## R CMD check results
 There were no ERRORs, WARNINGs, or NOTEs.
 
 ## Downstream dependencies
-There are no downstream dependencies.
+No downstream dependencies are negatively affected based on revdepcheck.

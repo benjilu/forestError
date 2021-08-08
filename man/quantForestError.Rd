@@ -12,6 +12,8 @@ quantForestError(
   Y.train = NULL,
   what = c("mspe", "bias", "interval", "p.error", "q.error"),
   alpha = 0.05,
+  train_nodes = NULL,
+  return_train_nodes = FALSE,
   n.cores = 1
 )
 }
@@ -40,6 +42,14 @@ conditional error quantile functions (\code{"q.error"}).}
 \item{alpha}{A vector of type-I error rates desired for the conditional prediction
 intervals; required if \code{"interval"} is included in \code{what}.}
 
+\item{train_nodes}{A \code{data.table} indicating what out-of-bag prediction
+errors each terminal node of each tree in \code{forest} contains. It should
+be formatted like the output of \code{findOOBErrors}. If not provided,
+it will be computed internally.}
+
+\item{return_train_nodes}{A boolean indicating whether to return the
+\code{train_nodes} computed and/or used.}
+
 \item{n.cores}{Number of cores to use (for parallel computation in \code{ranger}).}
 }
 \value{
@@ -63,6 +73,10 @@ A \code{data.frame} with one or more of the following columns, as described
   conditional error distributions associated with the test predictions}
   \item{qerror}{The estimated quantile functions of the conditional error
   distributions associated with the test predictions}
+
+  In addition, if \code{return_train_nodes} is \code{TRUE}, then a \code{data.table}
+  called \code{train_nodes} indicating which out-of-bag prediction errors each
+  terminal node of each tree in \code{forest} contains.
 }
 \description{
 Estimates the conditional mean squared prediction errors, conditional biases,
@@ -109,11 +123,12 @@ n <- nrow(airquality)
 response.col <- 1
 
 # split data into training and test sets
-train.ind <- sample(1:n, n * 0.9, replace = FALSE)
-Xtrain <- airquality[train.ind, -response.col]
-Ytrain <- airquality[train.ind, response.col]
-Xtest <- airquality[-train.ind, -response.col]
-Ytest <- airquality[-train.ind, response.col]
+train.ind <- sample(c("A", "B", "C"), n,
+                    replace = TRUE, prob = c(0.8, 0.1, 0.1))
+Xtrain <- airquality[train.ind == "A", -response.col]
+Ytrain <- airquality[train.ind == "A", response.col]
+Xtest1 <- airquality[train.ind == "B", -response.col]
+Xtest2 <- airquality[train.ind == "C", -response.col]
 
 # fit random forest to the training data
 rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 5,
@@ -122,23 +137,23 @@ rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 5,
 
 # estimate conditional mean squared prediction errors,
 # biases, prediction intervals, and error distribution
-# functions for the test observations
-output <- quantForestError(rf, Xtrain, Xtest,
-                           alpha = 0.05)
+# functions for the observations in Xtest1. return
+# train_nodes to avoid recomputation in the next
+# line of code.
+output1 <- quantForestError(rf, Xtrain, Xtest1,
+                            return_train_nodes = TRUE)
 
 # estimate just the conditional mean squared prediction errors
-# and prediction intervals for the test observations
-output <- quantForestError(rf, Xtrain, Xtest,
-                           what = c("mspe", "interval"),
-                           alpha = 0.05)
+# and prediction intervals for the observations in Xtest2.
+# avoid recomputation by providing train_nodes from the
+# previous line of code.
+output2 <- quantForestError(rf, Xtrain, Xtest2,
+                            what = c("mspe", "interval"),
+                            train_nodes = output1$train_nodes)
 
-# estimate just the conditional error distribution
-# functions for the test observations
-output <- quantForestError(rf, Xtrain, Xtest,
-                           what = c("p.error", "q.error"))
 }
 \seealso{
-\code{\link{perror}}, \code{\link{qerror}}
+\code{\link{perror}}, \code{\link{qerror}}, \code{\link{findOOBErrors}}
 }
 \author{
 Benjamin Lu \code{<b.lu@berkeley.edu>}; Johanna Hardin \code{<jo.hardin@pomona.edu>}

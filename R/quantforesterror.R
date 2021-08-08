@@ -55,6 +55,12 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "tree", "termin
 #'   conditional error quantile functions (\code{"q.error"}).
 #' @param alpha A vector of type-I error rates desired for the conditional prediction
 #'   intervals; required if \code{"interval"} is included in \code{what}.
+#' @param train_nodes A \code{data.table} indicating what out-of-bag prediction
+#'   errors each terminal node of each tree in \code{forest} contains. It should
+#'   be formatted like the output of \code{findOOBErrors}. If not provided,
+#'   it will be computed internally.
+#' @param return_train_nodes A boolean indicating whether to return the
+#'   \code{train_nodes} computed and/or used.
 #' @param n.cores Number of cores to use (for parallel computation in \code{ranger}).
 #'
 #' @return A \code{data.frame} with one or more of the following columns, as described
@@ -78,7 +84,11 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "tree", "termin
 #'   \item{qerror}{The estimated quantile functions of the conditional error
 #'   distributions associated with the test predictions}
 #'
-#' @seealso \code{\link{perror}}, \code{\link{qerror}}
+#'   In addition, if \code{return_train_nodes} is \code{TRUE}, then a \code{data.table}
+#'   called \code{train_nodes} indicating which out-of-bag prediction errors each
+#'   terminal node of each tree in \code{forest} contains.
+#'
+#' @seealso \code{\link{perror}}, \code{\link{qerror}}, \code{\link{findOOBErrors}}
 #'
 #' @author Benjamin Lu \code{<b.lu@berkeley.edu>}; Johanna Hardin \code{<jo.hardin@pomona.edu>}
 #'
@@ -94,11 +104,12 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "tree", "termin
 #' response.col <- 1
 #'
 #' # split data into training and test sets
-#' train.ind <- sample(1:n, n * 0.9, replace = FALSE)
-#' Xtrain <- airquality[train.ind, -response.col]
-#' Ytrain <- airquality[train.ind, response.col]
-#' Xtest <- airquality[-train.ind, -response.col]
-#' Ytest <- airquality[-train.ind, response.col]
+#' train.ind <- sample(c("A", "B", "C"), n,
+#'                     replace = TRUE, prob = c(0.8, 0.1, 0.1))
+#' Xtrain <- airquality[train.ind == "A", -response.col]
+#' Ytrain <- airquality[train.ind == "A", response.col]
+#' Xtest1 <- airquality[train.ind == "B", -response.col]
+#' Xtest2 <- airquality[train.ind == "C", -response.col]
 #'
 #' # fit random forest to the training data
 #' rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 5,
@@ -107,27 +118,27 @@ if(getRversion() >= "2.15.1"){utils::globalVariables(c("n.test", "tree", "termin
 #'
 #' # estimate conditional mean squared prediction errors,
 #' # biases, prediction intervals, and error distribution
-#' # functions for the test observations
-#' output <- quantForestError(rf, Xtrain, Xtest,
-#'                            alpha = 0.05)
+#' # functions for the observations in Xtest1. return
+#' # train_nodes to avoid recomputation in the next
+#' # line of code.
+#' output1 <- quantForestError(rf, Xtrain, Xtest1,
+#'                             return_train_nodes = TRUE)
 #'
 #' # estimate just the conditional mean squared prediction errors
-#' # and prediction intervals for the test observations
-#' output <- quantForestError(rf, Xtrain, Xtest,
-#'                            what = c("mspe", "interval"),
-#'                            alpha = 0.05)
+#' # and prediction intervals for the observations in Xtest2.
+#' # avoid recomputation by providing train_nodes from the
+#' # previous line of code.
+#' output2 <- quantForestError(rf, Xtrain, Xtest2,
+#'                             what = c("mspe", "interval"),
+#'                             train_nodes = output1$train_nodes)
 #'
-#' # estimate just the conditional error distribution
-#' # functions for the test observations
-#' output <- quantForestError(rf, Xtrain, Xtest,
-#'                            what = c("p.error", "q.error"))
 #' @aliases forestError
 #'
 #' @importFrom stats predict
 #' @import data.table
 #' @importFrom purrr map_dbl
 #' @export
-quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("mspe", "bias", "interval", "p.error", "q.error"), alpha = 0.05, n.cores = 1) {
+quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("mspe", "bias", "interval", "p.error", "q.error"), alpha = 0.05, train_nodes = NULL, return_train_nodes = FALSE, n.cores = 1) {
 
   # check forest, X.train, X.test arguments for issues
   checkForest(forest)
@@ -139,119 +150,11 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
   checkYtrain(forest, Y.train, n.train)
   checkcores(n.cores)
 
-  # if the forest is from the quantregForest package
-  if ("quantregForest" %in% class(forest)) {
-
-    # convert to random forest class
-    class(forest) <- "randomForest"
-
-    # get test predictions
-    test.pred.list <- predict(forest, X.test, nodes = TRUE)
-
-    # get terminal nodes of all observations
-    train.terminal.nodes <- attr(predict(forest, X.train, nodes = TRUE), "nodes")
-    test.terminal.nodes <- attr(test.pred.list, "nodes")
-
-    # get number of times each training observation appears in each tree
-    bag.count <- forest$inbag
-
-    # get the OOB prediction error of each training observation
-    oob.errors <- forest$y - forest$predicted
-
-    # get test observation predictions
-    attributes(test.pred.list) <- NULL
-    test.preds <- test.pred.list
-
-    # else if the forest is from the randomForest package
-  } else if ("randomForest" %in% class(forest)) {
-
-    # get test predictions
-    test.pred.list <- predict(forest, X.test, nodes = TRUE)
-
-    # get terminal nodes of all observations
-    train.terminal.nodes <- attr(predict(forest, X.train, nodes = TRUE), "nodes")
-    test.terminal.nodes <- attr(test.pred.list, "nodes")
-
-    # get number of times each training observation appears in each tree
-    bag.count <- forest$inbag
-
-    # get the OOB prediction error of each training observation
-    oob.errors <- forest$y - forest$predicted
-
-    # get test observation predictions
-    attributes(test.pred.list) <- NULL
-    test.preds <- test.pred.list
-
-    # else, if the forest is from the ranger package
-  } else if ("ranger" %in% class(forest)) {
-
-    # get terminal nodes of all observations
-    train.terminal.nodes <- predict(forest, X.train, num.threads = n.cores, type = "terminalNodes")$predictions
-    test.terminal.nodes <- predict(forest, X.test, num.threads = n.cores, type = "terminalNodes")$predictions
-
-    # get number of times each training observation appears in each tree
-    bag.count <- matrix(unlist(forest$inbag.counts, use.names = FALSE), ncol = forest$num.trees, byrow = FALSE)
-
-    # get the OOB prediction error of each training observation
-    oob.errors <- Y.train - forest$predictions
-
-    # get test observation predictions
-    test.preds <- predict(forest, X.test)$predictions
-
-    # else, if the forset is from the randomForestSRC package
-  } else if ("rfsrc" %in% class(forest)) {
-
-    # get test predictions
-    test.pred.list <- predict(forest, X.test, membership = TRUE)
-
-    # get terminal nodes of all observations
-    train.terminal.nodes <- forest$membership
-    test.terminal.nodes <- test.pred.list$membership
-
-    # get number of times each training observation appears in each tree
-    bag.count <- forest$inbag
-
-    # get the OOB prediction error of each training observation
-    oob.errors <- forest$yvar - forest$predicted.oob
-
-    # get test observation predictions
-    test.preds <- test.pred.list$predicted
+  # compute and locate out-of-bag training errors and test predictions
+  if (is.null(train_nodes)) {
+    train_nodes <- findOOBErrors(forest, X.train, Y.train, n.cores)
   }
-
-  # reshape test.terminal.nodes to be a long data.table and
-  # add unique IDs and predicted values
-  long_test_nodes <- data.table::melt(
-    data.table::as.data.table(test.terminal.nodes)[, `:=`(rowid_test = .I, pred = test.preds)],
-    id.vars = c("rowid_test", "pred"),
-    measure.vars = 1:ncol(test.terminal.nodes),
-    variable.name = "tree",
-    variable.factor = FALSE,
-    value.name = "terminal_node")
-
-  # set key columns for faster indexing
-  data.table::setkey(long_test_nodes, tree, terminal_node)
-
-  # get the terminal nodes of the training observations in the trees in which
-  # they are OOB (for all other trees, set the terminal node to be NA)
-  train.terminal.nodes[bag.count != 0] <- NA
-
-  # reshape train.terminal.nodes to be a long data.table and include OOB
-  # prediction errors as a column
-  long_train_nodes <- data.table::as.data.table(train.terminal.nodes)
-  long_train_nodes[, `:=`(oob_error = oob.errors)]
-  long_train_nodes <- data.table::melt(
-    long_train_nodes,
-    id.vars = c("oob_error"),
-    measure.vars = 1:ncol(train.terminal.nodes),
-    variable.name = "tree",
-    value.name = "terminal_node",
-    variable.factor = FALSE,
-    na.rm = TRUE)
-
-  # collapse the long data.table by unique tree/node
-  long_train_nodes <- long_train_nodes[,
-    .(node_errs = list(oob_error)),
-    keyby = c("tree", "terminal_node")]
+  test_nodes <- findTestPreds(forest, X.test, n.cores)
 
   # check what user wants to produce
   mspewhat <- "mspe" %in% what
@@ -274,7 +177,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       # join the train and test edgelists by tree/node and compute relevant summary
       # statistics via chaining
       oob_error_stats <-
-        long_train_nodes[long_test_nodes,
+        train_nodes[test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
                                                                               .(mspe = mean(unlist(node_errs) ^ 2)),
                                                                               keyby = c("rowid_test", "pred")]
@@ -282,7 +185,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       # join the train and test edgelists by tree/node and compute relevant summary
       # statistics via chaining
       oob_error_stats <-
-        long_train_nodes[long_test_nodes,
+        train_nodes[test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
                                                                               .(bias = -mean(unlist(node_errs))),
                                                                               keyby = c("rowid_test", "pred")]
@@ -290,7 +193,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       # join the train and test edgelists by tree/node and compute relevant summary
       # statistics via chaining
       oob_error_stats <-
-        long_train_nodes[long_test_nodes,
+        train_nodes[test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
                                                                               .(mspe = mean(unlist(node_errs) ^ 2),
                                                                                 bias = -mean(unlist(node_errs))),
@@ -305,7 +208,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       # join the train and test edgelists by tree/node and compute relevant summary
       # statistics via chaining
       oob_error_stats <-
-        long_train_nodes[long_test_nodes,
+        train_nodes[test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
                                                                               .(mspe = mean(unlist(node_errs) ^ 2),
                                                                                 all_errs = list(sort(unlist(node_errs)))),
@@ -314,7 +217,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       # join the train and test edgelists by tree/node and compute relevant summary
       # statistics via chaining
       oob_error_stats <-
-        long_train_nodes[long_test_nodes,
+        train_nodes[test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
                                                                               .(bias = -mean(unlist(node_errs)),
                                                                                 all_errs = list(sort(unlist(node_errs)))),
@@ -323,7 +226,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       # join the train and test edgelists by tree/node and compute relevant summary
       # statistics via chaining
       oob_error_stats <-
-        long_train_nodes[long_test_nodes,
+        train_nodes[test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
                                                                               .(mspe = mean(unlist(node_errs) ^ 2),
                                                                                 bias = -mean(unlist(node_errs)),
@@ -333,7 +236,7 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
       # join the train and test edgelists by tree/node and compute relevant summary
       # statistics via chaining
       oob_error_stats <-
-        long_train_nodes[long_test_nodes,
+        train_nodes[test_nodes,
                          .(tree, terminal_node, rowid_test, pred, node_errs)][,
                                                                               .(all_errs = list(sort(unlist(node_errs)))),
                                                                               keyby = c("rowid_test", "pred")]
@@ -422,6 +325,16 @@ quantForestError <- function(forest, X.train, X.test, Y.train = NULL, what = c("
     } else {
       output <- list(output_df, qerror)
       names(output) <- c("estimates", "qerror")
+    }
+  }
+
+  # add train_nodes if requested
+  if (return_train_nodes) {
+    if (pwhat | qwhat) {
+      output[["train_nodes"]] <- train_nodes
+    } else {
+      output <- list(output_df, train_nodes)
+      names(output) <- c("estimates", "train_nodes")
     }
   }
 

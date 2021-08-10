@@ -4,12 +4,12 @@
 #' random forest and, for each training observation and tree, finds the terminal
 #' node of the tree in which the training observation falls.
 #'
-#' This function accepts regression random forests built using the \code{randomForest},
-#' \code{ranger}, \code{randomForestSRC}, and \code{quantregForest} packages.
-#' When training the random forest using \code{randomForest}, \code{ranger}, or
-#' \code{quantregForest}, \code{keep.inbag} must be set to \code{TRUE}. When
-#' training the random forest using \code{randomForestSRC}, \code{membership}
-#' must be set to \code{TRUE}.
+#' This function accepts classification or regression random forests built using
+#' the \code{randomForest}, \code{ranger}, \code{randomForestSRC}, and
+#' \code{quantregForest} packages. When training the random forest using
+#' \code{randomForest}, \code{ranger}, or \code{quantregForest}, \code{keep.inbag}
+#' must be set to \code{TRUE}. When training the random forest using
+#' \code{randomForestSRC}, \code{membership} must be set to \code{TRUE}.
 #'
 #' @param forest The random forest object being used for prediction.
 #' @param X.train A \code{matrix} or \code{data.frame} with the observations
@@ -71,6 +71,9 @@
 #' @export
 findOOBErrors <- function(forest, X.train, Y.train = NULL, n.cores = 1) {
 
+  # determine whether this is a regression or classification random forest
+  categorical <- grepl("class", c(forest$type, forest$family, forest$treetype), TRUE)
+
   # if the forest is from the quantregForest package
   if ("quantregForest" %in% class(forest)) {
 
@@ -84,7 +87,11 @@ findOOBErrors <- function(forest, X.train, Y.train = NULL, n.cores = 1) {
     bag.count <- forest$inbag
 
     # get the OOB prediction error of each training observation
-    oob.errors <- forest$y - forest$predicted
+    if (categorical) {
+      oob.errors <- forest$y != forest$predicted
+    } else {
+      oob.errors <- forest$y - forest$predicted
+    }
 
     # else if the forest is from the randomForest package
   } else if ("randomForest" %in% class(forest)) {
@@ -96,7 +103,11 @@ findOOBErrors <- function(forest, X.train, Y.train = NULL, n.cores = 1) {
     bag.count <- forest$inbag
 
     # get the OOB prediction error of each training observation
-    oob.errors <- forest$y - forest$predicted
+    if (categorical) {
+      oob.errors <- forest$y != forest$predicted
+    } else {
+      oob.errors <- forest$y - forest$predicted
+    }
 
     # else, if the forest is from the ranger package
   } else if ("ranger" %in% class(forest)) {
@@ -108,9 +119,13 @@ findOOBErrors <- function(forest, X.train, Y.train = NULL, n.cores = 1) {
     bag.count <- matrix(unlist(forest$inbag.counts, use.names = FALSE), ncol = forest$num.trees, byrow = FALSE)
 
     # get the OOB prediction error of each training observation
-    oob.errors <- Y.train - forest$predictions
+    if (categorical) {
+      oob.errors <- Y.train != forest$predictions
+    } else {
+      oob.errors <- Y.train - forest$predictions
+    }
 
-    # else, if the forset is from the randomForestSRC package
+    # else, if the forest is from the randomForestSRC package
   } else if ("rfsrc" %in% class(forest)) {
 
     # get terminal nodes of all observations
@@ -120,8 +135,11 @@ findOOBErrors <- function(forest, X.train, Y.train = NULL, n.cores = 1) {
     bag.count <- forest$inbag
 
     # get the OOB prediction error of each training observation
-    oob.errors <- forest$yvar - forest$predicted.oob
-
+    if (categorical) {
+      oob.errors <- forest$yvar != forest$class.oob
+    } else {
+      oob.errors <- forest$yvar - forest$predicted.oob
+    }
   }
 
   # get the terminal nodes of the training observations in the trees in which
@@ -130,10 +148,10 @@ findOOBErrors <- function(forest, X.train, Y.train = NULL, n.cores = 1) {
 
   # reshape train.terminal.nodes to be a long data.table and include OOB
   # prediction errors as a column
-  long_train_nodes <- data.table::as.data.table(train.terminal.nodes)
-  long_train_nodes[, `:=`(oob_error = oob.errors)]
-  long_train_nodes <- data.table::melt(
-    long_train_nodes,
+  train_nodes <- data.table::as.data.table(train.terminal.nodes)
+  train_nodes[, `:=`(oob_error = oob.errors)]
+  train_nodes <- data.table::melt(
+    train_nodes,
     id.vars = c("oob_error"),
     measure.vars = 1:ncol(train.terminal.nodes),
     variable.name = "tree",
@@ -142,10 +160,10 @@ findOOBErrors <- function(forest, X.train, Y.train = NULL, n.cores = 1) {
     na.rm = TRUE)
 
   # collapse the long data.table by unique tree/node
-  long_train_nodes <- long_train_nodes[,
-                                       .(node_errs = list(oob_error)),
-                                       keyby = c("tree", "terminal_node")]
+  train_nodes <- train_nodes[,
+                             .(node_errs = list(oob_error)),
+                             keyby = c("tree", "terminal_node")]
 
   # return long data.table of OOB error values and locations
-  return(long_train_nodes)
+  return(train_nodes)
 }

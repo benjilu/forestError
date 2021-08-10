@@ -34,12 +34,12 @@ random forest and, for each training observation and tree, finds the terminal
 node of the tree in which the training observation falls.
 }
 \details{
-This function accepts regression random forests built using the \code{randomForest},
-\code{ranger}, \code{randomForestSRC}, and \code{quantregForest} packages.
-When training the random forest using \code{randomForest}, \code{ranger}, or
-\code{quantregForest}, \code{keep.inbag} must be set to \code{TRUE}. When
-training the random forest using \code{randomForestSRC}, \code{membership}
-must be set to \code{TRUE}.
+This function accepts classification or regression random forests built using
+the \code{randomForest}, \code{ranger}, \code{randomForestSRC}, and
+\code{quantregForest} packages. When training the random forest using
+\code{randomForest}, \code{ranger}, or \code{quantregForest}, \code{keep.inbag}
+must be set to \code{TRUE}. When training the random forest using
+\code{randomForestSRC}, \code{membership} must be set to \code{TRUE}.
 }
 \examples{
 # load data

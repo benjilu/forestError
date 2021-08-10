@@ -30,6 +30,9 @@
 #' @keywords internal
 findTestPreds <- function(forest, X.test, n.cores = 1) {
 
+  # determine whether this is a regression or classification random forest
+  categorical <- grepl("class", c(forest$type, forest$family, forest$treetype), TRUE)
+
   # if the forest is from the quantregForest package
   if ("quantregForest" %in% class(forest)) {
 
@@ -37,27 +40,25 @@ findTestPreds <- function(forest, X.test, n.cores = 1) {
     class(forest) <- "randomForest"
 
     # get test predictions
-    test.pred.list <- predict(forest, X.test, nodes = TRUE)
+    test.preds <- predict(forest, X.test, nodes = TRUE)
 
     # get terminal nodes of test observations
-    test.terminal.nodes <- attr(test.pred.list, "nodes")
+    test.terminal.nodes <- attr(test.preds, "nodes")
 
     # format test observation predictions
-    attributes(test.pred.list) <- NULL
-    test.preds <- test.pred.list
+    attr(test.preds, "nodes") <- NULL
 
     # else if the forest is from the randomForest package
   } else if ("randomForest" %in% class(forest)) {
 
     # get test predictions
-    test.pred.list <- predict(forest, X.test, nodes = TRUE)
+    test.preds <- predict(forest, X.test, nodes = TRUE)
 
     # get terminal nodes of test observations
-    test.terminal.nodes <- attr(test.pred.list, "nodes")
+    test.terminal.nodes <- attr(test.preds, "nodes")
 
     # format test observation predictions
-    attributes(test.pred.list) <- NULL
-    test.preds <- test.pred.list
+    attr(test.preds, "nodes") <- NULL
 
     # else, if the forest is from the ranger package
   } else if ("ranger" %in% class(forest)) {
@@ -68,7 +69,7 @@ findTestPreds <- function(forest, X.test, n.cores = 1) {
     # get test observation predictions
     test.preds <- predict(forest, X.test)$predictions
 
-    # else, if the forset is from the randomForestSRC package
+    # else, if the forest is from the randomForestSRC package
   } else if ("rfsrc" %in% class(forest)) {
 
     # get test predictions
@@ -78,12 +79,16 @@ findTestPreds <- function(forest, X.test, n.cores = 1) {
     test.terminal.nodes <- test.pred.list$membership
 
     # format test observation predictions
-    test.preds <- test.pred.list$predicted
+    if (categorical) {
+      test.preds <- test.pred.list$class
+    } else {
+      test.preds <- test.pred.list$predicted
+    }
   }
 
   # reshape test.terminal.nodes to be a long data.table and
   # add unique IDs and predicted values
-  long_test_nodes <- data.table::melt(
+  test_nodes <- data.table::melt(
     data.table::as.data.table(test.terminal.nodes)[, `:=`(rowid_test = .I, pred = test.preds)],
     id.vars = c("rowid_test", "pred"),
     measure.vars = 1:ncol(test.terminal.nodes),
@@ -92,8 +97,8 @@ findTestPreds <- function(forest, X.test, n.cores = 1) {
     value.name = "terminal_node")
 
   # set key columns for faster indexing
-  data.table::setkey(long_test_nodes, tree, terminal_node)
+  data.table::setkey(test_nodes, tree, terminal_node)
 
   # return data.table
-  return(long_test_nodes)
+  return(test_nodes)
 }

@@ -66,3 +66,30 @@ checkcores <- function(n.cores) {
     stop("Number of cores must be integer")
   }
 }
+
+# check requested parameters
+checkwhat <- function(what, forest) {
+  if (is.null(what)) {
+    stop("Please specify the parameters to be estimated")
+  } else if ("mcr" %in% what & length(what) > 2) {
+    stop("Misclassification rate cannot be estimated for real-valued responses")
+  } else if ("mcr" %in% what) {
+    if ("quantregForest" %in% class(forest)) {
+      if (forest$type != "classification") {
+        stop("Misclassification rate can be estimated only for classification random forests")
+      }
+    } else if ("randomForest" %in% class(forest)) {
+      if (forest$type != "classification") {
+        stop("Misclassification rate can be estimated only for classification random forests")
+      }
+    } else if ("rfsrc" %in% class(forest)) {
+      if (forest$family != "class") {
+        stop("Misclassification rate can be estimated only for classification random forests")
+      }
+    } else if ("ranger" %in% class(forest)) {
+      if (forest$treetype != "Classification") {
+        stop("Misclassification rate can be estimated only for classification random forests")
+      }
+    }
+  }
+}

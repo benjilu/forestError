@@ -59,7 +59,7 @@ A \code{data.frame} with one or more of the following columns:
   prediction intervals for the test observations}
   \item{upper_alpha}{The estimated upper bounds of the conditional alpha-level
   prediction intervals for the test observations}
-  \item{mcr}{The estiamted conditional misclassification rate of the random
+  \item{mcr}{The estimated conditional misclassification rate of the random
   forest predictions}
 
   In addition, one or both of the following functions:

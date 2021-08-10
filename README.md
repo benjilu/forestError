@@ -11,7 +11,7 @@ The conditional misclassification rate of predictions by classification random f
 
 ### Compartmentalization
 
-The identification of each training observation's out-of-bag terminal nodes is now compartmentalized from the main `quantForestError` function. By isolating this step from the main `quantForestError` function, Version 1.1.0.9000 allows users to more efficiently iterate the algorithm. Users may wish to feed `quantForestError` batches of test observations iteratively if they have streaming data or a large test set that cannot be processed in one go due to memory constraints. In previous versions, doing so would require the algorithm to recompute each training observation's out-of-bag terminal nodes in each iteration. This was redundant and costly. By separating this computation from the rest of the `quantForestError` algorithm, Version 1.1.0.9000 allows the user to perform this computation only once.
+The identification of each training observation's out-of-bag terminal nodes is now compartmentalized from the main `quantForestError` function. By isolating this step from the main `quantForestError` function, Version 1.1.0.9000 allows users to more efficiently iterate the algorithm. Users may wish to feed `quantForestError` batches of test observations iteratively if they have streaming data or a large test set that cannot be processed in one go due to memory constraints. In previous versions of this package, doing so would require the algorithm to recompute each training observation's out-of-bag terminal nodes in each iteration. This was redundant and costly. By separating this computation from the rest of the `quantForestError` algorithm, Version 1.1.0.9000 allows the user to perform this computation only once.
 
 As part of this modularization, the `quantForestError` function now has two additional arguments. If set to `TRUE`, `return_train_nodes` will return a `data.table` identifying each training observation's out-of-bag terminal nodes. This `data.table` can then be fed back into `quantForestError` via the argument `train_nodes` to avoid the redundant recomputation.
 
@@ -19,7 +19,7 @@ Version 1.1.0.9000 also exports the function that produces the `data.table` iden
 
 See the documentation on `quantForestError` and `findOOBErrors` for examples.
 
-Neither of these changes should not affect code that relied on Version 1.0.0 of this package, as they consist solely of a newly exported function, two optional arguments to `quantForestError` that by default do nothing new, and a new possible input for the `what` argument.
+Neither of these changes affects code that relied on Version 1.0.0 of this package, as the changes consist solely of a newly exported function, two optional arguments to `quantForestError` that by default do nothing new, and a new possible input for the `what` argument.
 
 ## Overview
 

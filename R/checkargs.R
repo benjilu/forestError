@@ -91,5 +91,23 @@ checkwhat <- function(what, forest) {
         stop("Misclassification rate can be estimated only for classification random forests")
       }
     }
+  } else if (any(c("mspe", "bias", "interval", "p.error", "q.error") %in% what)) {
+    if ("quantregForest" %in% class(forest)) {
+      if (forest$type == "classification") {
+        stop("Requested parameters cannot be estimated for classification random forests")
+      }
+    } else if ("randomForest" %in% class(forest)) {
+      if (forest$type == "classification") {
+        stop("Requested parameters cannot be estimated for classification random forests")
+      }
+    } else if ("rfsrc" %in% class(forest)) {
+      if (forest$family == "class") {
+        stop("Requested parameters cannot be estimated for classification random forests")
+      }
+    } else if ("ranger" %in% class(forest)) {
+      if (forest$treetype == "Classification") {
+        stop("Requested parameters cannot be estimated for classification random forests")
+      }
+    }
   }
 }

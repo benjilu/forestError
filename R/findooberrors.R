@@ -1,8 +1,9 @@
 #' Compute and locate out-of-bag prediction errors
 #'
 #' Computes each training observation's out-of-bag prediction error using the
-#' random forest and, for each training observation and tree, finds the terminal
-#' node of the tree in which the training observation falls.
+#' random forest and, for each tree for which the training observation is
+#' out of bag, finds the terminal node of the tree in which the training
+#' observation falls.
 #'
 #' This function accepts classification or regression random forests built using
 #' the \code{randomForest}, \code{ranger}, \code{randomForestSRC}, and
@@ -13,7 +14,7 @@
 #'
 #' @param forest The random forest object being used for prediction.
 #' @param X.train A \code{matrix} or \code{data.frame} with the observations
-#'   that were used to train \code{forest}; each row should be an observation,
+#'   that were used to train \code{forest}. Each row should be an observation,
 #'   and each column should be a predictor variable.
 #' @param Y.train A vector of the responses of the observations that were used
 #'   to train \code{forest}. Required if \code{forest} was created using
@@ -23,8 +24,8 @@
 #'
 #' @return A \code{data.table} with the following three columns:
 #'
-#'   \item{tree}{The tree of the random forest}
-#'   \item{terminal_node}{The terminal node of the tree}
+#'   \item{tree}{The ID of the tree of the random forest}
+#'   \item{terminal_node}{The ID of the terminal node of the tree}
 #'   \item{node_errs}{A vector of the out-of-bag prediction errors that fall
 #'   within the terminal node of the tree}
 #'
@@ -51,8 +52,7 @@
 #'
 #' # fit random forest to the training data
 #' rf <- randomForest::randomForest(Xtrain, Ytrain, nodesize = 5,
-#'                                  ntree = 500,
-#'                                  keep.inbag = TRUE)
+#'                                  ntree = 500, keep.inbag = TRUE)
 #'
 #' # compute out-of-bag prediction errors and locate each
 #' # training observation in the trees for which it is out

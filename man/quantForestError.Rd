@@ -22,7 +22,7 @@ quantForestError(
 \item{forest}{The random forest object being used for prediction.}
 
 \item{X.train}{A \code{matrix} or \code{data.frame} with the observations
-that were used to train \code{forest}; each row should be an observation,
+that were used to train \code{forest}. Each row should be an observation,
 and each column should be a predictor variable.}
 
 \item{X.test}{A \code{matrix} or \code{data.frame} with the observations to
@@ -81,13 +81,13 @@ A \code{data.frame} with one or more of the following columns, as described
   distributions associated with the test predictions}
 
   In addition, if \code{return_train_nodes} is \code{TRUE}, then a \code{data.table}
-  called \code{train_nodes} indicating which out-of-bag prediction errors each
+  called \code{train_nodes} indicating what out-of-bag prediction errors each
   terminal node of each tree in \code{forest} contains.
 }
 \description{
-Estimates the conditional mean squared prediction errors, conditional biases,
-conditional prediction intervals, conditional error distributions, and
-conditional misclassification rates of random forest predictions.
+Estimates the conditional misclassification rates, conditional mean squared
+prediction errors, conditional biases, conditional prediction intervals, and
+conditional error distributions of random forest predictions.
 }
 \details{
 This function accepts classification or regression random forests built using
@@ -115,12 +115,15 @@ the conditional misclassification rate of each test prediction to the
 only for classification random forests, while the other parameters can be
 estimated only for regression random forests.
 
-If \code{"p.error"} or \code{"q.error"} is included in \code{what}, then a
-list will be returned as output. The first element of the list, named
-\code{"estimates"}, is the \code{data.frame} described in the above paragraph. The
-other one or two elements of the list are the estimated cumulative distribution
-functions (\code{perror}) and/or the estimated quantile functions (\code{qerror})
-of the conditional error distributions associated with the test predictions.
+If \code{"p.error"} or \code{"q.error"} is included in \code{what}, or if
+\code{return_train_nodes} is set to \code{TRUE}, then a list will be returned
+as output. The first element of the list, named \code{"estimates"}, is the
+\code{data.frame} described in the above paragraph. The other elements of the
+list are the estimated cumulative distribution functions (\code{perror}) of
+the conditional error distributions, the estimated quantile functions
+(\code{qerror}) of the conditional error distributions, and/or a \code{data.table}
+indicating what out-of-bag prediction errors each terminal node of each tree
+in the random forest contains.
 }
 \examples{
 # load data

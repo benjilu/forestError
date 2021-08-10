@@ -10,7 +10,7 @@ findTestPreds(forest, X.test, n.cores = 1)
 \item{forest}{The random forest object being used for prediction.}
 
 \item{X.test}{A \code{matrix} or \code{data.frame} with the observations to
-be predicted; each row should be an observation, and each column should be
+be predicted. Each row should be an observation, and each column should be
 a predictor variable.}
 
 \item{n.cores}{Number of cores to use (for parallel computation in \code{ranger}).}
@@ -20,9 +20,9 @@ A \code{data.table} with the following four columns:
 
   \item{rowid_test}{The row ID of the test observation as provided by \code{X.test}}
   \item{pred}{The random forest prediction of the test observation}
-  \item{tree}{The tree of the random forest}
-  \item{terminal_node}{The terminal node of the tree in which the test
-  observation falls}
+  \item{tree}{The ID of the tree of the random forest}
+  \item{terminal_node}{The ID of the terminal node of the tree in which the
+  test observation falls}
 }
 \description{
 Predicts each test observation's response using the random forest and, for

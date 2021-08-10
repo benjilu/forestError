@@ -3,7 +3,8 @@ This is an updated version of an existing package.
 
 ## Changes from previous submission
 Modularized the main function's steps by defining them as separate functions,
-one of which is now newly exported.
+one of which is now newly exported. Enabled estimation of an additional
+parameter through the main function.
 
 ## Test environments
 * local macOS R 4.1.0

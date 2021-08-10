@@ -5,11 +5,11 @@
 
 Version 1.1.0.9000 makes two changes. First, it enables estimation of the conditional misclassification rate of predictions by classification random forests as proposed by Lu and Hardin (2021). Second, it compartmentalizes a costly step in the `quantForestError` algorithm: The identification of each training observation's out-of-bag terminal nodes.
 
-## Conditional Misclassification Rate Estimation
+#### Conditional Misclassification Rate Estimation
 
 The conditional misclassification rate of predictions by classification random forests can now be estimated. To estimate it, simply set the `what` argument in the `quantForestError` function to `"mcr"`. `what` will default to this if the provided `forest` is a classification random forest. See the example code below for a toy demonstration of the performance of this estimator.
 
-## Compartmentalization
+#### Compartmentalization
 
 The identification of each training observation's out-of-bag termianl nodes is now compartmentalized from the main `quantForestError` function. By isolating this step from the main `quantForestError` function, Version 1.1.0.9000 allows users to more efficiently iterate the algorithm. Users may wish to feed `quantForestError` batches of test observations iteratively if they have streaming data or a large test set that cannot be processed in one go due to memory constraints. In previous versions, doing so would require the algorithm to recompute each training observation's out-of-bag terminal nodes in each iteration. This was redundant and costly. By separating this computation from the rest of the `quantForestError` algorithm, Version 1.1.0.9000 allows the user to perform this computation only once.
 
